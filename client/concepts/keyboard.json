@@ -1,0 +1,205 @@
+{
+	'click=>Audio3D':{url:'assets/concepts/keyboard/Click_Electronic_08.mp3'},
+	'cubeMap=>HDRCubeMapTexture' : {url:'assets/concepts/keyboard/HDRempty.bin'},
+	'font=>Font':{url:'assets/concepts/defaultFonts/Kelson_Sans_Regular.json'},
+	'keyFontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0xffffff},
+	'startHeight=>Float':{value:1.5},
+	'state=>String':{value:'closed'},
+	'open=>Action':{
+		'callback=>Pointer':{},
+		'result=>String':{value:''},
+		onAction:[
+			{'concept.view.object.visible':true},
+			{'keyTable.doQuery':{'record.m.lock':'A'}},
+			{'symbolTable.doQuery':{}},
+			{'view.resultPart.doBuild':{id:'result', 'text.text':['result.value']}},
+			{'keyTable.doIterateRecords':[
+				{'view.keyPart.doBuild':{id:['current.key'], object:{position:{x:['current.x'], y:['startHeight - current.y']}}, geometry:{x:['current.w - 0.04'], y:['current.h - 0.04']}, text:{width:['current.w'], text:['current.l']}}},
+			]},
+			{'env.defaults.masterKeyboard.value':['concept.localId']},
+			{'view.iterator.doIterate':{onNext:[{'current.material.opacity.doAnimation':{from:0, to:0.8, fromTime:0, toTime:400}}]}},
+			{'concept.view.object.rotation.x.doAnimation':{from:0.628312, to:0, fromTime:400, toTime:800}},
+		]
+	},
+	'close=>Action':{
+		onAction:[
+			{doIf:{value:'env.defaults.masterKeyboard == concept.localId',
+				onTrue:[
+					{'env.defaults.masterKeyboard':'default'},
+					{'view.iterator.doIterate':{onNext:[{'current.material.opacity.doAnimation':{from:0.8, to:0, fromTime:0, toTime:400}}]}},
+					{'concept.view.object.rotation.x.doAnimation':{from:0, to:0.628312, fromTime:0, toTime:400}},
+					{doWait:400},
+					{'view.keyPart.intersect.doUnfocus':{}},
+					{'view.iterator.doIterate':{onNext:[{'current.doRemove':{}}]}},
+					{'view.active':['empty']},
+				]
+			}}
+		]
+	},
+	'view=>Group':{object:{scale:{x:0.25, y:0.25, z:0.25}, position:{y:1}, rotation:{x:0.628312}},
+		'iterator=>VisibleChildIterator':{},
+		'active=>Pointer':{},
+		'keyPart=>Handler':{
+			'design=>Mesh':{'geometry=>BoxGeometry':{x:1, y:1, z:0.04}, 'material=>BasicMaterial':{transparent:true, color:0x00, opacity:0},
+				'text=>Text':{'object.position':{x:0, y:0, z:.05}, fontMtl:'concept.keyFontMtl', font:'concept.font', width:1, fontSize:.3, pad:{top:-.16}, text:'X'}},
+			'intersect=>IntersectAction':{
+				onFocused:[
+					{'world.doLog':['parent']},
+					{'current.material.opacity':1}
+				],
+				onUnfocused:[{'current.material.opacity':0.8}],
+				onSelected:[
+					{'keyTable.doSelect':{'record.key.lock':['current.id']}},
+					{'keyTable.record.t.value.isValue':{
+						'CapsLock':[
+							{doIf:{value:'capsLock.value == false',
+								onTrue:[{'capsLock.value':true}, {'changeCase.do':{'mode.value':'B'}}],
+								onFalse:[{'capsLock.value':false}, {'changeCase.do':{'mode.value':'A'}}]
+							}}
+						],
+						'Backspace':[{'result.text.text':['result.text.text.trimLastChar']}],
+						'Symbol':[{'result.text.text':['result.text.text + keyTable.record.s']}]
+					}},
+					{'active':['current']},
+					{'current.material.color':0x999999},
+					{'concept.open.callback.do':{'result.value':['result.text.text'], 'key.value':['keyTable.record.s']}},
+				],
+				onUnselected:[
+					{doIf:{value:'active != empty', onTrue:[{'active.material.color':0x000000}]}},
+					{'active':['empty']}
+				]
+			},
+		},
+		'resultPart=>Handler':{
+			'design=>Mesh':{id:'result', object:{position:{x:0, y:['startHeight + 1']}}, 'geometry=>BoxGeometry':{x:14, y:1, z:0.04}, 'material=>BasicMaterial':{transparent:true, color:0x00, opacity:0},
+				'text=>Text':{'object.position':{x:0, y:0, z:.05}, fontMtl:'concept.keyFontMtl', font:'concept.font', width:14, fontSize:.3, pad:{top:-.16}, text:''}},
+		},
+		'currentKey=>String':{},
+		'capsLock=>Boolean':{value:false},
+		'shiftMode=>Boolean':{value:false},
+		'changeCase=>Action':{
+			'mode=>String':{},
+			onAction:[
+				{'keyTable.doQuery':{'record.m.lock':['mode']}},
+				{'keyTable.doIterateRecords':[
+					{'view.doFindChild':{value:['current.key'],
+						onTrue:[{'current.text.text':['parent.current.l']}]}}
+				]},
+			]
+		},
+		'keyboardListener=>KeyboardListener':{
+			'focusKey=>Pointer':{},
+			onAction:[
+				{doIf:{value:'env.defaults.masterKeyboard.value == concept.localId',
+					onTrue:[
+						{'symbolTable.doSelect':{'record.s.lock':['key']}},
+						{'keyTable.doSelect':{'record.key.lock':['symbolTable.record.key']}},
+						{'currentKey.value':['keyTable.record.s.value']},
+						{'keyTable.record.key.lock':['empty']},
+						{'view.doFindChild':{value:['symbolTable.record.key'], onTrue:[{'active.value':['current']}]}},
+						{'mode.isValue':{
+							down:[
+								{'symbolTable.record.t.value.isValue':{
+									'Shift':[
+										{'shiftMode.value':true},
+										{'changeCase.do':{'mode.value':'B'}},
+									],
+								}},
+							],
+							pressed:[
+								{'symbolTable.record.t.value.isValue':{
+									'CapsLock':[
+										{doIf:{value:'capsLock.value == false',
+											onTrue:[{'capsLock.value':true}, {'changeCase.do':{'mode.value':'B'}}],
+											onFalse:[{'capsLock.value':false}, {'changeCase.do':{'mode.value':'A'}}]
+										}}
+									],
+									'Backspace':[{'result.text.text':['result.text.text.trimLastChar']}],
+									'Symbol':[{'result.text.text':['result.text.text + currentKey']}]
+								}},
+								{'active.material.color':0x999999},
+								{'concept.open.callback.do':{'result.value':['result.text.text'], 'key.value':['currentKey']}}
+							],
+							up:[
+								{'symbolTable.record.t.value.isValue':{
+									'Shift':[
+										{'shiftMode.value':false},
+										{'changeCase.do':{'mode.value':'A'}}
+									]
+								}},
+								{doIf:{value:'active != empty', onTrue:[{'active.material.color':0x000000}]}},
+								{'active':['empty']}
+							]
+						}}
+					]
+				}}
+			]
+		},
+	},
+	'keyTable=>BasicTable':{isBuilt:true,
+		'record=>Record':{'key=>StringField':{}, 'm=>StringField':{lock:'A'}, 'x=>StringField':{}, 'y=>StringField':{}, 'w=>StringField':{},
+			'h=>StringField':{}, 's=>StringField':{}, 'l=>StringField':{}, 't=>StringField':{default:'Symbol'}
+		},
+		source:['parent.source']
+	},
+	'symbolTable=>BasicTable':{isBuilt:true,
+		'record=>Record':{'key=>StringField':{}, 's=>StringField':{}, 't=>StringField':{default:'Symbol'}},
+		source:['parent.source']
+	},
+	'source=>JSONSource':{data:[
+		{key:'k01', m:'A', x:-7, y:0, w:1, h:1, s:'`', l:'`'}, {key:'k01', m:'B', x:-7, y:0, w:1, h:1, s:'~', l:'~'},
+		{key:'k02', m:'A', x:-6, y:0, w:1, h:1, s:'1', l:'1'}, {key:'k02', m:'B', x:-6, y:0, w:1, h:1, s:'!', l:'!'},
+		{key:'k03', m:'A', x:-5, y:0, w:1, h:1, s:'2', l:'2'}, {key:'k03', m:'B', x:-5, y:0, w:1, h:1, s:'@', l:'@'},
+		{key:'k04', m:'A', x:-4, y:0, w:1, h:1, s:'3', l:'3'}, {key:'k04', m:'B', x:-4, y:0, w:1, h:1, s:'#', l:'#'},
+		{key:'k05', m:'A', x:-3, y:0, w:1, h:1, s:'4', l:'4'}, {key:'k05', m:'B', x:-3, y:0, w:1, h:1, s:'$', l:'$'},
+		{key:'k06', m:'A', x:-2, y:0, w:1, h:1, s:'5', l:'5'}, {key:'k06', m:'B', x:-2, y:0, w:1, h:1, s:'%', l:'%'},
+		{key:'k07', m:'A', x:-1, y:0, w:1, h:1, s:'6', l:'6'}, {key:'k07', m:'B', x:-1, y:0, w:1, h:1, s:'^', l:'^'},
+		{key:'k08', m:'A', x:0, y:0, w:1, h:1, s:'7', l:'7'}, {key:'k08', m:'B', x:0, y:0, w:1, h:1, s:'&', l:'&'},
+		{key:'k09', m:'A', x:1, y:0, w:1, h:1, s:'8', l:'8'}, {key:'k09', m:'B', x:1, y:0, w:1, h:1, s:'*', l:'*'},
+		{key:'k10', m:'A', x:2, y:0, w:1, h:1, s:'9', l:'9'}, {key:'k10', m:'B', x:2, y:0, w:1, h:1, s:'(', l:'('},
+		{key:'k11', m:'A', x:3, y:0, w:1, h:1, s:'0', l:'0'}, {key:'k11', m:'B', x:3, y:0, w:1, h:1, s:')', l:')'},
+		{key:'k12', m:'A', x:4, y:0, w:1, h:1, s:'-', l:'-'}, {key:'k12', m:'B', x:4, y:0, w:1, h:1, s:'_', l:'_'},
+		{key:'k13', m:'A', x:5, y:0, w:1, h:1, s:'=', l:'='}, {key:'k13', m:'B', x:5, y:0, w:1, h:1, s:'+', l:'+'},
+		{key:'k14', m:'A', x:6.5, y:0, w:2, h:1, s:'Backspace', l:'<==', t:'Backspace'}, {key:'k14', x:6.5, y:0, w:2, h:1, s:'Backspace', l:'<==', t:'Backspace'},
+		{key:'k15', m:'A', x:-6.75, y:1, w:1.5, h:1, s:'tab', l:'TAB', t:'tab'}, {key:'k15', m:'B', x:-6.75, y:1, w:1.5, h:1, s:'tab', l:'TAB', t:'tab'},
+		{key:'k16', m:'A', x:-5.5, y:1, w:1, h:1, s:'q', l:'q'}, {key:'k16', m:'B', x:-5.5, y:1, w:1, h:1, s:'Q', l:'Q'},
+		{key:'k17', m:'A', x:-4.5, y:1, w:1, h:1, s:'w', l:'w'}, {key:'k17', m:'B', x:-4.5, y:1, w:1, h:1, s:'W', l:'W'},
+		{key:'k18', m:'A', x:-3.5, y:1, w:1, h:1, s:'e', l:'e'}, {key:'k18', m:'B', x:-3.5, y:1, w:1, h:1, s:'E', l:'E'},
+		{key:'k19', m:'A', x:-2.5, y:1, w:1, h:1, s:'r', l:'r'}, {key:'k19', m:'B', x:-2.5, y:1, w:1, h:1, s:'R', l:'R'},
+		{key:'k20', m:'A', x:-1.5, y:1, w:1, h:1, s:'t', l:'t'}, {key:'k20', m:'B', x:-1.5, y:1, w:1, h:1, s:'T', l:'T'},
+		{key:'k21', m:'A', x:-0.5, y:1, w:1, h:1, s:'y', l:'y'}, {key:'k21', m:'B', x:-0.5, y:1, w:1, h:1, s:'Y', l:'Y'},
+		{key:'k22', m:'A', x:.5, y:1, w:1, h:1, s:'u', l:'u'}, {key:'k22', m:'B', x:.5, y:1, w:1, h:1, s:'U', l:'U'},
+		{key:'k23', m:'A', x:1.5, y:1, w:1, h:1, s:'i', l:'i'}, {key:'k23', m:'B', x:1.5, y:1, w:1, h:1, s:'I', l:'I'},
+		{key:'k24', m:'A', x:2.5, y:1, w:1, h:1, s:'o', l:'o'}, {key:'k24', m:'B', x:2.5, y:1, w:1, h:1, s:'O', l:'O'},
+		{key:'k25', m:'A', x:3.5, y:1, w:1, h:1, s:'p', l:'p'}, {key:'k25', m:'B', x:3.5, y:1, w:1, h:1, s:'P', l:'P'},
+		{key:'k26', m:'A', x:4.5, y:1, w:1, h:1, s:'[', l:'['}, {key:'k26', m:'B', x:4.5, y:1, w:1, h:1, s:'{', l:'{'},
+		{key:'k27', m:'A', x:5.5, y:1, w:1, h:1, s:']', l:']'}, {key:'k27', m:'B', x:5.5, y:1, w:1, h:1, s:'}', l:'}'},
+		{key:'k28', m:'A', x:6.75, y:1, w:1.5, h:1, s:'\\', l:'\\'}, {key:'k28', m:'B', x:6.75, y:1, w:1.5, h:1, s:'|', l:'|'},
+		{key:'k29', m:'A', x:-6.625, y:2, w:1.75, h:1, s:'CapsLock', l:'CAPS', t:'CapsLock'}, {key:'k29', m:'B', x:-6.625, y:2, w:1.75, h:1, s:'CapsLock', l:'CAPS', t:'CapsLock'},
+		{key:'k30', m:'A', x:-5.25, y:2, w:1, h:1, s:'a', l:'a'}, {key:'k30', m:'B', x:-5.25, y:2, w:1, h:1, s:'A', l:'A'},
+		{key:'k31', m:'A', x:-4.25, y:2, w:1, h:1, s:'s', l:'s'}, {key:'k31', m:'B', x:-4.25, y:2, w:1, h:1, s:'S', l:'S'},
+		{key:'k32', m:'A', x:-3.25, y:2, w:1, h:1, s:'d', l:'d'}, {key:'k32', m:'B', x:-3.25, y:2, w:1, h:1, s:'D', l:'D'},
+		{key:'k33', m:'A', x:-2.25, y:2, w:1, h:1, s:'f', l:'f'}, {key:'k33', m:'B', x:-2.25, y:2, w:1, h:1, s:'F', l:'F'},
+		{key:'k34', m:'A', x:-1.25, y:2, w:1, h:1, s:'g', l:'g'}, {key:'k34', m:'B', x:-1.25, y:2, w:1, h:1, s:'G', l:'G'},
+		{key:'k35', m:'A', x:-0.25, y:2, w:1, h:1, s:'h', l:'h'}, {key:'k35', m:'B', x:-0.25, y:2, w:1, h:1, s:'H', l:'H'},
+		{key:'k36', m:'A', x:0.75, y:2, w:1, h:1, s:'j', l:'j'}, {key:'k36', m:'B', x:0.75, y:2, w:1, h:1, s:'J', l:'J'},
+		{key:'k37', m:'A', x:1.75, y:2, w:1, h:1, s:'k', l:'k'}, {key:'k37', m:'B', x:1.75, y:2, w:1, h:1, s:'K', l:'K'},
+		{key:'k38', m:'A', x:2.75, y:2, w:1, h:1, s:'l', l:'l'}, {key:'k38', m:'B', x:2.75, y:2, w:1, h:1, s:'L', l:'L'},
+		{key:'k39', m:'A', x:3.75, y:2, w:1, h:1, s:';', l:';'}, {key:'k39', m:'B', x:3.75, y:2, w:1, h:1, s:':', l:':'},
+		{key:'k40', m:'A', x:4.75, y:2, w:1, h:1, s:"'", l:"'"}, {key:'k40', m:'B', x:4.75, y:2, w:1, h:1, s:'"', l:'"'},
+		{key:'k41', m:'A', x:6.375, y:2, w:2.25, h:1, s:'Enter', l:'ENTER', t:'Enter'}, {key:'k41', m:'B', x:6.375, y:2, w:2.25, h:1, s:'Enter', l:'ENTER', t:'Enter'},
+		{key:'k42', m:'A', x:-6.375, y:3, w:2.25, h:1, s:'Shift', l:'SHIFT', t:'Shift'}, {key:'k42', m:'B', x:-6.375, y:3, w:2.25, h:1, s:'Shift', l:'SHIFT', t:'Shift'},
+		{key:'k43', m:'A', x:-4.75, y:3, w:1, h:1, s:'z', l:'z'}, {key:'k43', m:'B', x:-4.75, y:3, w:1, h:1, s:'Z', l:'Z'},
+		{key:'k44', m:'A', x:-3.75, y:3, w:1, h:1, s:'x', l:'x'}, {key:'k44', m:'B', x:-3.75, y:3, w:1, h:1, s:'X', l:'X'},
+		{key:'k45', m:'A', x:-2.75, y:3, w:1, h:1, s:'c', l:'c'}, {key:'k45', m:'B', x:-2.75, y:3, w:1, h:1, s:'C', l:'C'},
+		{key:'k46', m:'A', x:-1.75, y:3, w:1, h:1, s:'v', l:'v'}, {key:'k46', m:'B', x:-1.75, y:3, w:1, h:1, s:'V', l:'V'},
+		{key:'k47', m:'A', x:-0.75, y:3, w:1, h:1, s:'b', l:'b'}, {key:'k47', m:'B', x:-0.75, y:3, w:1, h:1, s:'B', l:'B'},
+		{key:'k48', m:'A', x:0.25, y:3, w:1, h:1, s:'n', l:'n'}, {key:'k48', m:'B', x:0.25, y:3, w:1, h:1, s:'N', l:'N'},
+		{key:'k49', m:'A', x:1.25, y:3, w:1, h:1, s:'m', l:'m'}, {key:'k49', m:'B', x:1.25, y:3, w:1, h:1, s:'M', l:'M'},
+		{key:'k50', m:'A', x:2.25, y:3, w:1, h:1, s:',', l:','}, {key:'k50', m:'B', x:2.25, y:3, w:1, h:1, s:'<', l:'<'},
+		{key:'k51', m:'A', x:3.25, y:3, w:1, h:1, s:'.', l:'.'}, {key:'k51', m:'B', x:3.25, y:3, w:1, h:1, s:'>', l:'>'},
+		{key:'k52', m:'A', x:4.25, y:3, w:1, h:1, s:'/', l:'/'}, {key:'k52', m:'B', x:4.25, y:3, w:1, h:1, s:'?', l:'?'},
+		{key:'k53', m:'A', x:6.125, y:3, w:2.75, h:1, s:'Shift', l:'SHIFT',t:'Shift'}, {key:'k53', m:'A', x:6.125, y:3, w:2.75, h:1, s:'Shift', l:'SHIFT', t:'Shift'},
+		{key:'k54', m:'A', x:0, y:4, w:6.5, h:1, s:' ', l:' '}, {key:'k54', m:'B', x:0, y:4, w:6.5, h:1, s:' ', l:' '}
+	]}
+},

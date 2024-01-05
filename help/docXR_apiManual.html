@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+	<head>
+		<title>DocXR API</title>
+		<meta charset="utf-8">
+		<style>
+			html, body {
+				font-family: Arial, Helvetica, sans-serif;
+		    height: 100%;
+		    margin: 0;
+			}
+			#sidebar{
+				height: calc(100% - 40px);
+				width: 260px;
+				position: fixed;
+				top: 0;
+				left: 0;
+				padding-top: 20px;
+				padding-left: 20px;
+				padding-bottom:40px;
+				background-color: #DDDDDD;
+		    display: flex;
+		    flex-direction: column;
+				overflow-y:auto;
+			}
+			#sidebar span {
+				display:inline-block;
+				margin-bottom: 6px;
+				font-weight: bold;
+			}
+			#sidebar span a {
+				color: #000000;
+				text-decoration: none;
+			}
+			#sidebar span a:hover {
+				padding-left:6px;
+				color:#FFFFFF;
+			}
+			.navClassName {
+				display:block;
+				padding-left: 12px;
+				margin-bottom: 6px;
+			}
+			#content {
+				margin-top: 20px;
+				margin-left: 340px;
+				padding-bottom:40px;
+			}
+			.classSection {
+				display: block;
+				margin-bottom: 60px;
+			}
+			.className {
+				display:inline-block;
+				height:36px;
+				font-size: 1.5em;
+				font-weight: bold;
+			}
+			.prop1 {
+				display:block;
+				padding-left: 24px;
+				margin-bottom: 12px;
+			}
+			.prop2 {
+				display:block;
+				padding-left: 48px;
+				margin-bottom: 12px;
+			}
+			.prop3 {
+				display:block;
+				padding-left: 72px;
+				margin-bottom: 12px;
+			}
+			.prop4 {
+				display:block;
+				padding-left: 96px;
+				margin-bottom: 12px;
+			}
+			.propType {
+				color: #000000;
+				margin-left:6px;
+				margin-right:6px;
+			}
+			.propType a{
+				color: #6aa308;
+				text-decoration:underline;
+			}
+			h3 {
+				display:inline;
+				text-decoration:none;
+			}
+			h4 {
+				display:inline;
+				font-size:1.2em;
+				text-decoration:none;
+			}
+			h5 {
+				display:inline;
+				font-size:1em;
+				text-decoration:none;
+			}
+			#banner {
+				display:flex;
+				margin-bottom:36px;
+				height:64px;
+				vertical-align:middle;
+			}
+			#banner span {
+				font-size:2.5em;
+				font-weight:bold;
+				line-height:64px;
+			}
+			.title {
+				display:block;
+				margin-top:12px;
+				color:#6aa308;
+			}
+			.baseClass {
+				background-color:black;
+				padding:5px;
+				font-size:0.5em;
+				font-weight:normal;
+				margin-left:10px;
+				vertical-align:middle;
+				height:36px;
+				border-radius: 6px;
+			}
+			.baseClass a {
+				color:white;
+				text-decoration:none;
+			}
+			/* Tooltip text */
+			.baseClass .tooltiptext {
+			  visibility: hidden;
+			  background-color: #DDDDDD;
+			  color: #6aa308;
+			  text-align: center;
+			  padding: 6px;
+				font-weight:normal;
+
+			  /* Position the tooltip text - see examples below! */
+			  position: absolute;
+			  z-index: 1;
+				margin-left:9px;
+				margin-top:6px;
+			}
+
+			/* Show the tooltip text when you mouse over the tooltip container */
+			.baseClass:hover .tooltiptext {
+			  visibility: visible;
+			}
+			.description {
+				display:block;
+				font-weight:normal;
+				font-size:1.1em;
+				width:70%;
+				margin-bottom: 12px;
+			}
+			.symbolDot {
+				display:inline-block;
+				border-radius: 50%;
+	    	width: 8px;
+		    height: 8px;
+		    padding: 4px;
+				margin-left:3px;
+				border: 2px solid #A0A0A0;
+		    background: #fff;
+		    color: #A0A0A0;
+		    text-align: center;
+				vertical-align:middle;
+				font-size:0.7em;
+				font-weight:bold;
+				line-height:8px;
+				-webkit-touch-callout: none;
+		    -webkit-user-select: none;
+		    -khtml-user-select: none;
+		    -moz-user-select: none;
+		    -ms-user-select: none;
+		    user-select: none;
+			}
+		</style>
+  </head>
+  <body>
+    <div id="sidebar">
+    <span class="title"><a href="#Control">Control</a></span>
+      <span class="navClassName"><a href="#ARRAY">ARRAY</a></span>
+      <span class="navClassName"><a href="#BOOLEAN">BOOLEAN</a></span>
+      <span class="navClassName"><a href="#Control">Control</a></span>
+      <span class="navClassName"><a href="#DATA">DATA</a></span>
+      <span class="navClassName"><a href="#FLOAT">FLOAT</a></span>
+      <span class="navClassName"><a href="#INTEGER">INTEGER</a></span>
+      <span class="navClassName"><a href="#Padding">Padding</a></span>
+      <span class="navClassName"><a href="#RULES">RULES</a></span>
+      <span class="navClassName"><a href="#STRING">STRING</a></span>
+      <span class="navClassName"><a href="#_Box">_Box</a></span>
+      <span class="navClassName"><a href="#_ControlMap">_ControlMap</a></span>
+      <span class="navClassName"><a href="#_DoAnimation">_DoAnimation</a></span>
+      <span class="navClassName"><a href="#_DoDelay">_DoDelay</a></span>
+      <span class="navClassName"><a href="#_DoFindCells">_DoFindCells</a></span>
+      <span class="navClassName"><a href="#_DoFindChild">_DoFindChild</a></span>
+      <span class="navClassName"><a href="#_DoIf">_DoIf</a></span>
+      <span class="navClassName"><a href="#_DoIterate">_DoIterate</a></span>
+      <span class="navClassName"><a href="#_DoLogin">_DoLogin</a></span>
+      <span class="navClassName"><a href="#_DoUpdateNotify">_DoUpdateNotify</a></span>
+      <span class="navClassName"><a href="#_Event">_Event</a></span>
+      <span class="navClassName"><a href="#_Location">_Location</a></span>
+      <span class="navClassName"><a href="#_Object3D">_Object3D</a></span>
+      <span class="navClassName"><a href="#_Scale">_Scale</a></span>
+      <span class="navClassName"><a href="#_Tiling">_Tiling</a></span>
+      <span class="navClassName"><a href="#_Vector">_Vector</a></span>
+    <span class="title"><a href="#Concept">Concept</a></span>
+      <span class="navClassName"><a href="#IncludeConcept">IncludeConcept</a></span>
+    <span class="title"><a href="#Control3D">Control3D</a></span>
+      <span class="navClassName"><a href="#Area">Area</a></span>
+      <span class="navClassName"><a href="#ColladaMesh">ColladaMesh</a></span>
+      <span class="navClassName"><a href="#Concept">Concept</a></span>
+      <span class="navClassName"><a href="#DirectionalLight">DirectionalLight</a></span>
+      <span class="navClassName"><a href="#Environment">Environment</a></span>
+      <span class="navClassName"><a href="#FBXMesh">FBXMesh</a></span>
+      <span class="navClassName"><a href="#Fire">Fire</a></span>
+      <span class="navClassName"><a href="#GLTF">GLTF</a></span>
+      <span class="navClassName"><a href="#Group">Group</a></span>
+      <span class="navClassName"><a href="#HemisphereLight">HemisphereLight</a></span>
+      <span class="navClassName"><a href="#ImageMesh">ImageMesh</a></span>
+      <span class="navClassName"><a href="#Keyboard">Keyboard</a></span>
+      <span class="navClassName"><a href="#LineBasicMesh">LineBasicMesh</a></span>
+      <span class="navClassName"><a href="#Mesh">Mesh</a></span>
+      <span class="navClassName"><a href="#ObjectMesh">ObjectMesh</a></span>
+      <span class="navClassName"><a href="#PointLight">PointLight</a></span>
+      <span class="navClassName"><a href="#RoundPortal">RoundPortal</a></span>
+      <span class="navClassName"><a href="#SpriteMesh">SpriteMesh</a></span>
+      <span class="navClassName"><a href="#TableView">TableView</a></span>
+      <span class="navClassName"><a href="#Text">Text</a></span>
+      <span class="navClassName"><a href="#User">User</a></span>
+      <span class="navClassName"><a href="#UserCell">UserCell</a></span>
+      <span class="navClassName"><a href="#UserGroup">UserGroup</a></span>
+      <span class="navClassName"><a href="#UserPartCell">UserPartCell</a></span>
+      <span class="navClassName"><a href="#ViewCell">ViewCell</a></span>
+    <span class="title"><a href="#Control">Control</a></span>
+      <span class="navClassName"><a href="#Action">Action</a></span>
+      <span class="navClassName"><a href="#Anchor">Anchor</a></span>
+      <span class="navClassName"><a href="#Audio3D">Audio3D</a></span>
+      <span class="navClassName"><a href="#Boolean">Boolean</a></span>
+      <span class="navClassName"><a href="#Collection">Collection</a></span>
+      <span class="navClassName"><a href="#Control3D">Control3D</a></span>
+      <span class="navClassName"><a href="#Event">Event</a></span>
+      <span class="navClassName"><a href="#Float">Float</a></span>
+      <span class="navClassName"><a href="#Font">Font</a></span>
+      <span class="navClassName"><a href="#Geometry">Geometry</a></span>
+      <span class="navClassName"><a href="#GlowEffect">GlowEffect</a></span>
+      <span class="navClassName"><a href="#Handler">Handler</a></span>
+      <span class="navClassName"><a href="#Identity">Identity</a></span>
+      <span class="navClassName"><a href="#IdentityAR">IdentityAR</a></span>
+      <span class="navClassName"><a href="#Integer">Integer</a></span>
+      <span class="navClassName"><a href="#Iterate">Iterate</a></span>
+      <span class="navClassName"><a href="#Iterator">Iterator</a></span>
+      <span class="navClassName"><a href="#Material">Material</a></span>
+      <span class="navClassName"><a href="#Measure">Measure</a></span>
+      <span class="navClassName"><a href="#MeshUtility">MeshUtility</a></span>
+      <span class="navClassName"><a href="#Note">Note</a></span>
+      <span class="navClassName"><a href="#RectangleShape">RectangleShape</a></span>
+      <span class="navClassName"><a href="#Ref">Ref</a></span>
+      <span class="navClassName"><a href="#Server">Server</a></span>
+      <span class="navClassName"><a href="#Source">Source</a></span>
+      <span class="navClassName"><a href="#String">String</a></span>
+      <span class="navClassName"><a href="#Texture">Texture</a></span>
+      <span class="navClassName"><a href="#Vector">Vector</a></span>
+      <span class="navClassName"><a href="#VoiceChat">VoiceChat</a></span>
+      <span class="navClassName"><a href="#World">World</a></span>
+    <span class="title"><a href="#Event">Event</a></span>
+      <span class="navClassName"><a href="#ControllerEvent">ControllerEvent</a></span>
+      <span class="navClassName"><a href="#GlobalEvent">GlobalEvent</a></span>
+      <span class="navClassName"><a href="#IntersectEvent">IntersectEvent</a></span>
+      <span class="navClassName"><a href="#KeyboardEvent">KeyboardEvent</a></span>
+    <span class="title"><a href="#FieldLeaf">FieldLeaf</a></span>
+      <span class="navClassName"><a href="#ControlField">ControlField</a></span>
+      <span class="navClassName"><a href="#DateField">DateField</a></span>
+      <span class="navClassName"><a href="#NumberField">NumberField</a></span>
+      <span class="navClassName"><a href="#StringField">StringField</a></span>
+    <span class="title"><a href="#Field">Field</a></span>
+      <span class="navClassName"><a href="#FieldLeaf">FieldLeaf</a></span>
+      <span class="navClassName"><a href="#Record">Record</a></span>
+    <span class="title"><a href="#Geometry">Geometry</a></span>
+      <span class="navClassName"><a href="#BoxGeometry">BoxGeometry</a></span>
+      <span class="navClassName"><a href="#CircleGeometry">CircleGeometry</a></span>
+      <span class="navClassName"><a href="#CylinderGeometry">CylinderGeometry</a></span>
+      <span class="navClassName"><a href="#ExtrudeGeometry">ExtrudeGeometry</a></span>
+      <span class="navClassName"><a href="#Object">Object</a></span>
+      <span class="navClassName"><a href="#PlaneGeometry">PlaneGeometry</a></span>
+      <span class="navClassName"><a href="#SphereGeometry">SphereGeometry</a></span>
+      <span class="navClassName"><a href="#TorusGeometry">TorusGeometry</a></span>
+      <span class="navClassName"><a href="#TorusKnotGeometry">TorusKnotGeometry</a></span>
+    <span class="title"><a href="#Handler">Handler</a></span>
+      <span class="navClassName"><a href="#AnimationHandler">AnimationHandler</a></span>
+      <span class="navClassName"><a href="#PortalLogic">PortalLogic</a></span>
+    <span class="title"><a href="#Material">Material</a></span>
+      <span class="navClassName"><a href="#BasicMaterial">BasicMaterial</a></span>
+      <span class="navClassName"><a href="#BrainloopShaderMaterial">BrainloopShaderMaterial</a></span>
+      <span class="navClassName"><a href="#BrainwaveShaderMaterial">BrainwaveShaderMaterial</a></span>
+      <span class="navClassName"><a href="#CloudSpinShaderMaterial">CloudSpinShaderMaterial</a></span>
+      <span class="navClassName"><a href="#DioramaGlowShaderMaterial">DioramaGlowShaderMaterial</a></span>
+      <span class="navClassName"><a href="#DioramaTestShaderMaterial">DioramaTestShaderMaterial</a></span>
+      <span class="navClassName"><a href="#EntryShaderMaterial">EntryShaderMaterial</a></span>
+      <span class="navClassName"><a href="#GridShaderMaterial">GridShaderMaterial</a></span>
+      <span class="navClassName"><a href="#OutlineShaderMaterial">OutlineShaderMaterial</a></span>
+      <span class="navClassName"><a href="#StandardMaterial">StandardMaterial</a></span>
+      <span class="navClassName"><a href="#TeleportShaderMaterial">TeleportShaderMaterial</a></span>
+      <span class="navClassName"><a href="#TreeTestShaderMaterial">TreeTestShaderMaterial</a></span>
+      <span class="navClassName"><a href="#UnderwaterMaterial">UnderwaterMaterial</a></span>
+    <span class="title"><a href="#Source">Source</a></span>
+      <span class="navClassName"><a href="#CSVSource">CSVSource</a></span>
+      <span class="navClassName"><a href="#CookieSource">CookieSource</a></span>
+      <span class="navClassName"><a href="#Database">Database</a></span>
+      <span class="navClassName"><a href="#FilteredSource">FilteredSource</a></span>
+      <span class="navClassName"><a href="#JSONSource">JSONSource</a></span>
+      <span class="navClassName"><a href="#MailSource">MailSource</a></span>
+      <span class="navClassName"><a href="#ScriptSource">ScriptSource</a></span>
+      <span class="navClassName"><a href="#Table">Table</a></span>
+    <span class="title"><a href="#StandardMaterial">StandardMaterial</a></span>
+      <span class="navClassName"><a href="#SkyDeckRiverMaterial">SkyDeckRiverMaterial</a></span>
+      <span class="navClassName"><a href="#SpecialMaterial">SpecialMaterial</a></span>
+    <span class="title"><a href="#Table">Table</a></span>
+      <span class="navClassName"><a href="#BasicTable">BasicTable</a></span>
+    <span class="title"><a href="#Text">Text</a></span>
+      <span class="navClassName"><a href="#TextCell">TextCell</a></span>
+    <span class="title"><a href="#Texture">Texture</a></span>
+      <span class="navClassName"><a href="#BasicTexture">BasicTexture</a></span>
+      <span class="navClassName"><a href="#CanvasTexture">CanvasTexture</a></span>
+      <span class="navClassName"><a href="#CubeMapTexture">CubeMapTexture</a></span>
+      <span class="navClassName"><a href="#HDRCubeMapTexture">HDRCubeMapTexture</a></span>
+      <span class="navClassName"><a href="#SmartTexture">SmartTexture</a></span>
+      <span class="navClassName"><a href="#VideoTexture">VideoTexture</a></span>
+    <span class="title"><a href="#ViewCell">ViewCell</a></span>
+      <span class="navClassName"><a href="#KeyboardViewCell">KeyboardViewCell</a></span>
+      <span class="navClassName"><a href="#TableViewCell">TableViewCell</a></span>
+  </div>
+    <div id="content">
+    <div id="banner"><span>DocXR API Manual</span></div>
+      <span class="classSection">
+        <span id="ARRAY" class="className"><h3>ARRAY</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>doLoop</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>description</h4><small><span class="propType"><a href="#"></a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BOOLEAN" class="className"><h3>BOOLEAN</h3></span>        <span class="description">Primitive BOOLEAN value</span>
+        <span class="prop1"><h4>doAnimation</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoAnimation">_DoAnimation</a></span></small></span>
+        <span class="prop1"><h4>isValue</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Control" class="className"><h3>Control</h3></span>        <span class="description">A base class used to derive most complex classes used as building blocks for the scripting language</span>
+        <span class="prop1"><h4>area</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Area">Area</a></span>Returns parent area control</small></span>
+        <span class="prop1"><h4>children</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>DEPRECATED - Array of all children</small></span>
+        <span class="prop1"><h4>event</h4><small><span class="propType"><a href="#_Event">_Event</a></span>Event parameters</small></span>
+        <span class="prop1"><h4>eventUser</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>User sending the event</small></span>
+        <span class="prop1"><h4>concept</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Concept">Concept</a></span>Returns parent concept control</small></span>
+        <span class="prop1"><h4>data</h4><small><span class="propType"><a href="#DATA">DATA</a></span>Used to attach non-descript data elements to the object</small></span>
+        <span class="prop1"><h4>doAddChild</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>Adds the given control as a child</small></span>
+        <span class="prop1"><h4>doFindChild</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoFindChild">_DoFindChild</a></span>Execute onTrue if child found otherwise onFalse</small></span>
+        <span class="prop1"><h4>doChildLoop</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Rules">Rules</a></span>DEPRECATED - Loop through all children</small></span>
+        <span class="prop1"><h4>doRename</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span>Rename control with given name or unique name if empty</small></span>
+        <span class="prop1"><h4>doRemove</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Remove this control</small></span>
+        <span class="prop1"><h4>doReparent</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>Change controls parent</small></span>
+        <span class="prop1"><h4>doSwapHandler</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>HACK - Used to move handlers around</small></span>
+        <span class="prop1"><h4>doWaitForClear</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Wait until all events are done</small></span>
+        <span class="prop1"><h4>doRules</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>Execute a set of rules on the current control.</small></span>
+        <span class="prop1"><h4>env</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Environment">Environment</a></span>Returns parent environment control</small></span>
+        <span class="prop1"><h4>environmentId</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span>Address of environment</small></span>
+        <span class="prop1"><h4>handler</h4><small><span class="propType"><a href="#Control">Control</a></span>Assigns the handler that will listen on this control.</small></span>
+        <span class="prop1"><h4>id</h4><small><span class="propType"><a href="#STRING">STRING</a></span>unique identifier of this control.  Can not conflict with property or child names.</small></span>
+        <span class="prop1"><h4>identity</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>returns the identity control</small></span>
+        <span class="prop1"><h4>localId</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span>A local area name for the control</small></span>
+        <span class="prop1"><h4>me</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>DEPRECATED - return this</small></span>
+        <span class="prop1"><h4>order</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>A value used by several operations to determine order of control.</small></span>
+        <span class="prop1"><h4>onCreated</h4><small><span class="propType"><a href="#RULES">RULES</a></span>DEPRECATED - Executed only when a fresh script is run that doesnt have a state yet</small></span>
+        <span class="prop1"><h4>onInitialized</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Executed when control is finished loading</small></span>
+        <span class="prop1"><h4>parent</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>parent of this control</small></span>
+        <span class="prop1"><h4>type</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span>Control Type</small></span>
+        <span class="prop1"><h4>world</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>world control</small></span>
+        <span class="prop1"><h4>current</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>Current control that this control is handling events for</small></span>
+        <span class="prop1"><h4>doWait</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Wait for a given number of milliseconds</small></span>
+        <span class="prop1"><h4>doWaitScore</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Wait for score to finish</small></span>
+        <span class="prop1"><h4>doDelay</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoDelay">_DoDelay</a></span>Delay actions</small></span>
+        <span class="prop1"><h4>doIf</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoIf">_DoIf</a></span>Execute if construct</small></span>
+        <span class="prop1"><h4>doIterate</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoIterate">_DoIterate</a></span>Iterate over a given array</small></span>
+    </span>
+      <span class="classSection">
+        <span id="DATA" class="className"><h3>DATA</h3></span>        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="FLOAT" class="className"><h3>FLOAT</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>doAnimation</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoAnimation">_DoAnimation</a></span></small></span>
+        <span class="prop1"><h4>isValue</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="INTEGER" class="className"><h3>INTEGER</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>doAnimation</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoAnimation">_DoAnimation</a></span></small></span>
+        <span class="prop1"><h4>isValue</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Padding" class="className"><h3>Padding</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>top</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>left</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>right</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>bottom</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="RULES" class="className"><h3>RULES</h3></span>        <span class="description">A Series of instructions executed against the current control</span>
+    </span>
+      <span class="classSection">
+        <span id="STRING" class="className"><h3>STRING</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>isValue</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Box" class="className"><h3>_Box</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>min</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>max</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_ControlMap" class="className"><h3>_ControlMap</h3></span>        <span class="description">An array of Controls</span>
+    </span>
+      <span class="classSection">
+        <span id="_DoAnimation" class="className"><h3>_DoAnimation</h3></span>        <span class="description">Animation parameters</span>
+        <span class="prop1"><h4>ease</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Selects the type of easing used in animation</small></span>
+        <span class="prop1"><h4>from</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Denotes the starting value</small></span>
+        <span class="prop1"><h4>to</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Denotes the ending value</small></span>
+        <span class="prop1"><h4>onTick</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Executed every frame</small></span>
+        <span class="prop1"><h4>onTime</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Executed once animation is finished</small></span>
+        <span class="prop1"><h4>fromTime</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Denotes the starting time of animation</small></span>
+        <span class="prop1"><h4>toTime</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Denotes the ending time of animation</small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoDelay" class="className"><h3>_DoDelay</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>time</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>onTick</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>onTime</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoFindCells" class="className"><h3>_DoFindCells</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>zone</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>rowIndex</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>onFound</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoFindChild" class="className"><h3>_DoFindChild</h3></span>        <span class="description">Execute onTrue or onFalse based on value</span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#STRING">STRING</a></span>String name of child to find</small></span>
+        <span class="prop1"><h4>onTrue</h4><small><span class="propType"><a href="#DATA">DATA</a></span>Executed when equation is true</small></span>
+        <span class="prop1"><h4>onFalse</h4><small><span class="propType"><a href="#DATA">DATA</a></span>Executed when equation is false</small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoIf" class="className"><h3>_DoIf</h3></span>        <span class="description">Execute onTrue or onFalse based on value</span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Equation to test true or false against</small></span>
+        <span class="prop1"><h4>onTrue</h4><small><span class="propType"><a href="#DATA">DATA</a></span>Executed when equation is true</small></span>
+        <span class="prop1"><h4>onFalse</h4><small><span class="propType"><a href="#DATA">DATA</a></span>Executed when equation is false</small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoIterate" class="className"><h3>_DoIterate</h3></span>        <span class="description">Iterate an array value and execute rules against each object in the array</span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>Array to iterate</small></span>
+        <span class="prop1"><h4>onNext</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Rules to execute for each iteration</small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoLogin" class="className"><h3>_DoLogin</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>user</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>password</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>initData</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>mode</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_DoUpdateNotify" class="className"><h3>_DoUpdateNotify</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>current</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Event" class="className"><h3>_Event</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>user</h4><small><span class="propType"><a href="#Control">Control</a></span>user that sent the event</small></span>
+        <span class="prop1"><h4>state</h4><small><span class="propType"><a href="#STRING">STRING</a></span>event state</small></span>
+        <span class="prop1"><h4>key</h4><small><span class="propType"><a href="#STRING">STRING</a></span>key pressed if key event</small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Location" class="className"><h3>_Location</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>position</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>rotation</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Object3D" class="className"><h3>_Object3D</h3></span>        <span class="description">rotation and position information</span>
+        <span class="prop1"><h4>castShadow</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>receiveShadow</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>opacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>position</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>renderOrder</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>rotation</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>direction</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>scalar</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>scale</h4><small><span class="propType"><a href="#_Scale">_Scale</a></span></small></span>
+        <span class="prop1"><h4>visible</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Scale" class="className"><h3>_Scale</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>x</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>y</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>z</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Tiling" class="className"><h3>_Tiling</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>u</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>v</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="_Vector" class="className"><h3>_Vector</h3></span>        <span class="description"></span>
+        <span class="prop1"><h4>x</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>y</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>z</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="IncludeConcept" class="className"><h3>IncludeConcept</h3></span><span class="baseClass"><a href="#Concept">Concept</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Location of concept</small></span>
+        <span class="prop1"><h4>static</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Ignore changes in concept when serializing</small></span>
+        <span class="prop1"><h4>modify</h4><small><span class="propType"><a href="#DATA">DATA</a></span>tree ordered differences between current state and orginal state</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Area" class="className"><h3>Area</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">A Group the represents an area of objects.</span>
+    </span>
+      <span class="classSection">
+        <span id="ColladaMesh" class="className"><h3>ColladaMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>doPlay</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Concept" class="className"><h3>Concept</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>lockId</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Who has the lock on this concept</small></span>
+        <span class="prop1"><h4>access</h4><small><span class="propType"><a href="#STRING">STRING</a></span>comma seperated user access list.  keyword user means current user</small></span>
+    </span>
+      <span class="classSection">
+        <span id="DirectionalLight" class="className"><h3>DirectionalLight</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>intensity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Environment" class="className"><h3>Environment</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>instanceId</h4><small><span class="propType"><a href="#STRING">STRING</a></span>DEPRECATED - Worlds Instance Id</small></span>
+        <span class="prop1"><h4>designId</h4><small><span class="propType"><a href="#STRING">STRING</a></span>DEPRECATED - duplicate of id</small></span>
+        <span class="prop1"><h4>defaultTexture</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Used by SmartTexture to define a default texture extension</small></span>
+        <span class="prop1"><h4>removeControl</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="FBXMesh" class="className"><h3>FBXMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>doPlay</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Fire" class="className"><h3>Fire</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>time</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Time division that changes fire speed</small></span>
+        <span class="prop1"><h4>fireSize</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Size of fire</small></span>
+        <span class="prop1"><h4>particles</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Number of particles in the fire</small></span>
+    </span>
+      <span class="classSection">
+        <span id="GLTF" class="className"><h3>GLTF</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>material</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>play</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>envMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Group" class="className"><h3>Group</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="HemisphereLight" class="className"><h3>HemisphereLight</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>skycolor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>groundColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>intensity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="ImageMesh" class="className"><h3>ImageMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>originalSize</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>useUnitScale</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>map</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>envMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>opacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Keyboard" class="className"><h3>Keyboard</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doBuildView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>doKeyDown</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>doKeyUp</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>doUnbuildView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>isBuilt</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>onBuild</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>onUpdate</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>resultCells</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span></small></span>
+        <span class="prop1"><h4>keyCells</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span></small></span>
+        <span class="prop1"><h4>capsLockOn</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Returns true if caps lock is on</small></span>
+        <span class="prop1"><h4>shiftOn</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>True if keyboard shift is on</small></span>
+        <span class="prop1"><h4>source</h4><small><span class="propType"><a href="#Source">Source</a></span></small></span>
+        <span class="prop1"><h4>text</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="LineBasicMesh" class="className"><h3>LineBasicMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>length</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Mesh" class="className"><h3>Mesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>renderOrder</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Set render order of all children</small></span>
+        <span class="prop1"><h4>geometry</h4><small><span class="propType"><a href="#Geometry">Geometry</a></span>geometry of the object</small></span>
+        <span class="prop1"><h4>material</h4><small><span class="propType"><a href="#Material">Material</a></span>material of the object</small></span>
+        <span class="prop1"><h4>doUpdate</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Update mesh if geometry changed</small></span>
+    </span>
+      <span class="classSection">
+        <span id="ObjectMesh" class="className"><h3>ObjectMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="PointLight" class="className"><h3>PointLight</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>intensity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>distance</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>decay</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="RoundPortal" class="className"><h3>RoundPortal</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>run</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>percent</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>logoTexture</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>portalTexture</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>portalColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>sceneName</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>scale</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="SpriteMesh" class="className"><h3>SpriteMesh</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>map</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="TableView" class="className"><h3>TableView</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>columnMin</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>columnCount</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>doAdjustView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Readjust View with any changed properties</small></span>
+        <span class="prop1"><h4>doBuildView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Build all cells in view</small></span>
+        <span class="prop1"><h4>doFindCells</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoFindCells">_DoFindCells</a></span></small></span>
+        <span class="prop1"><h4>doUnbuildView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Remove all view cells</small></span>
+        <span class="prop1"><h4>doUpdateView</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Update view to reflect new scroll position</small></span>
+        <span class="prop1"><h4>heightMin</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>rows</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#MAP">MAP</a></span></small></span>
+        <span class="prop1"><h4>rowCount</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>rowMin</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>rowNow</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>rowMax</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>recordFillCount</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Number of non empty records showing</small></span>
+        <span class="prop1"><h4>recordEmptyCount</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Number of empty records showing</small></span>
+        <span class="prop1"><h4>recordCount</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>recordOffset</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Index of first record visible</small></span>
+        <span class="prop1"><h4>onBuild</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>onUpdate</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>eventControls</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+        <span class="prop1"><h4>fieldCells</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span></small></span>
+        <span class="prop1"><h4>headerCells</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span></small></span>
+        <span class="prop1"><h4>isBuilt</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>maxFields</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>maxHeaders</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>table</h4><small><span class="propType"><a href="#Table">Table</a></span></small></span>
+        <span class="prop1"><h4>startHeader</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>startRow</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Text" class="className"><h3>Text</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>align</h4><small><span class="propType"><a href="#STRING">STRING</a></span>center, right, left</small></span>
+        <span class="prop1"><h4>font</h4><small><span class="propType"><a href="#Control">Control</a></span>Font Control Object</small></span>
+        <span class="prop1"><h4>fontMtl</h4><small><span class="propType"><a href="#Control">Control</a></span>Font Material</small></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Maximum Height of Text</small></span>
+        <span class="prop1"><h4>lineSpace</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Spacing Between Lines</small></span>
+        <span class="prop1"><h4>maxHeight</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>maxWidth</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>minHeight</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>minWidth</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>pad</h4><small><span class="propType"><a href="#Padding">Padding</a></span></small></span>
+        <span class="prop1"><h4>fontSize</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Size of Font</small></span>
+        <span class="prop1"><h4>text</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>wordSpace</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Spacing Between Words. Default to size of letter a</small></span>
+        <span class="prop1"><h4>width</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Maximum Width of Text</small></span>
+    </span>
+      <span class="classSection">
+        <span id="User" class="className"><h3>User</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>device</h4><small><span class="propType"><a href="#STRING">STRING</a></span>browser, VR</small></span>
+        <span class="prop1"><h4>zone</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Zone</small></span>
+    </span>
+      <span class="classSection">
+        <span id="UserCell" class="className"><h3>UserCell</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>zone</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="UserGroup" class="className"><h3>UserGroup</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="UserPartCell" class="className"><h3>UserPartCell</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>zone</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="ViewCell" class="className"><h3>ViewCell</h3></span><span class="baseClass"><a href="#Control3D">Control3D</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>zone</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Action" class="className"><h3>Action</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>onAction</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Called when design is updated</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Anchor" class="className"><h3>Anchor</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">Used internally by the script to represent control place holder.</span>
+    </span>
+      <span class="classSection">
+        <span id="Audio3D" class="className"><h3>Audio3D</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>loop</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>maxDistance</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>pause</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>play</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>stop</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>doPlayAt</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>Where to play sound</small></span>
+        <span class="prop1"><h4>playAt</h4><small><span class="propType"><a href="#Control">Control</a></span>DEPRECATED - Where to play sound</small></span>
+        <span class="prop1"><h4>refDistance</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>volume</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Boolean" class="className"><h3>Boolean</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Boolean value</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Collection" class="className"><h3>Collection</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>design</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Design of items in collection</small></span>
+        <span class="prop1"><h4>doCreate</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Create a new mesh</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Control3D" class="className"><h3>Control3D</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">A base control inherited by other controls that contains 3D graphical information.</span>
+        <span class="prop1"><h4>doLookAt</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Control">Control</a></span>Look At Object</small></span>
+        <span class="prop1"><h4>layout</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>Layout Interface</small></span>
+        <span class="prop1"><h4>horizontal</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Position children horizontally</small></span>
+        <span class="prop1"><h4>vertical</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>position children vertically</small></span>
+        <span class="prop1"><h4>object</h4><small><span class="propType"><a href="#_Object3D">_Object3D</a></span>The underlying 3D object interface</small></span>
+        <span class="prop1"><h4>locationTrait</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Location">_Location</a></span>DEPRECATED - HACK</small></span>
+        <span class="prop1"><h4>size</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Size of object. Move this to a util interface.</small></span>
+        <span class="prop1"><h4>worldPosition</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>HACK</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Event" class="className"><h3>Event</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>ignore</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Ignore Event</small></span>
+        <span class="prop1"><h4>broadcast</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>0 = local 1 = broadcast everyone but me 2 = broadcast everyone 3 = list of target users</small></span>
+        <span class="prop1"><h4>targetUserId</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Target a specific user for the event</small></span>
+        <span class="prop1"><h4>user</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>user who sent event</small></span>
+        <span class="prop1"><h4>onEvent</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Action to execute if event is triggered</small></span>
+        <span class="prop1"><h4>doLock</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Attept to lock the concept so events can be done on this concept</small></span>
+        <span class="prop1"><h4>do</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#RULES">RULES</a></span>Execute Event</small></span>
+        <span class="prop1"><h4>doGlobal</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#RULES">RULES</a></span>Execute Event</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Float" class="className"><h3>Float</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Float value</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Font" class="className"><h3>Font</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Geometry" class="className"><h3>Geometry</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>box</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Box">_Box</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="GlowEffect" class="className"><h3>GlowEffect</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>frameNow</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>frameDirection</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>toTime</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>startOpacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>endOpacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>startColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>endColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>speed</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Handler" class="className"><h3>Handler</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doWaitSync</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Identity" class="className"><h3>Identity</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>waitOnServer</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>camera</h4><small><span class="propType"><a href="#_Object3D">_Object3D</a></span>The agents camera</small></span>
+        <span class="prop1"><h4>userId</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="IdentityAR" class="className"><h3>IdentityAR</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>waitOnServer</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>pattern</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>camera</h4><small><span class="propType"><a href="#_Object3D">_Object3D</a></span>The agents camera</small></span>
+        <span class="prop1"><h4>cameraControl</h4><small><span class="propType"><a href="#Control">Control</a></span>Camera Control</small></span>
+        <span class="prop1"><h4>canvasSizeX</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>canvasSizeY</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>userId</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>onAREvent</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>activeAR</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Integer" class="className"><h3>Integer</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Integer value</small></span>
+        <span class="prop1"><h4>asMoney</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span>Round to 2 decimals</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Iterate" class="className"><h3>Iterate</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="Iterator" class="className"><h3>Iterator</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>next</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>previous</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>min</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>max</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>now</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Material" class="className"><h3>Material</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="Measure" class="className"><h3>Measure</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>scalar</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>source</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>target</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>distance</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="MeshUtility" class="className"><h3>MeshUtility</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>source</h4><small><span class="propType"><a href="#Control">Control</a></span>Source Mesh</small></span>
+        <span class="prop1"><h4>target</h4><small><span class="propType"><a href="#Control">Control</a></span>Target Mesh</small></span>
+        <span class="prop1"><h4>distance</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Distance between source and target</small></span>
+        <span class="prop1"><h4>aPosition</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Some Position</small></span>
+        <span class="prop1"><h4>aRotation</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Some Rotation</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Note" class="className"><h3>Note</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>text</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Text associated with the note</small></span>
+    </span>
+      <span class="classSection">
+        <span id="RectangleShape" class="className"><h3>RectangleShape</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>width</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>radius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Ref" class="className"><h3>Ref</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>ref</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>_value</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Server" class="className"><h3>Server</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="Source" class="className"><h3>Source</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doMergeTable</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Source">Source</a></span>Merge Source Table into source</small></span>
+        <span class="prop1"><h4>doSave</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Save updates</small></span>
+    </span>
+      <span class="classSection">
+        <span id="String" class="className"><h3>String</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doAppend</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#STRING">STRING</a></span>String value</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Texture" class="className"><h3>Texture</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="Vector" class="className"><h3>Vector</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>x</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>y</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>z</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="VoiceChat" class="className"><h3>VoiceChat</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doTalk</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>mute</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Mute microphone</small></span>
+        <span class="prop1"><h4>waitOnServer</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="World" class="className"><h3>World</h3></span><span class="baseClass"><a href="#Control">Control</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>agent</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>Agent Identity</small></span>
+        <span class="prop1"><h4>doLog</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span>Just like a println in a normal language</small></span>
+        <span class="prop1"><h4>deploy</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Used by system writers to rewrite base environment scripts that are stored in Static directory</small></span>
+        <span class="prop1"><h4>timeout</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>The time used to display possible errors in execution.  Must be high enough to let the scene load</small></span>
+        <span class="prop1"><h4>previousEnvironmentName</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Previous environment name.  Can be changed if needed</small></span>
+        <span class="prop1"><h4>switchWorld</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Switch to a different world instance</small></span>
+        <span class="prop1"><h4>instanceUUID</h4><small><span class="propType"><a href="#STRING">STRING</a></span>The current unique world instance</small></span>
+    </span>
+      <span class="classSection">
+        <span id="ControllerEvent" class="className"><h3>ControllerEvent</h3></span><span class="baseClass"><a href="#Event">Event</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>selectState</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>select state</small></span>
+        <span class="prop1"><h4>buttonAState</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>select state</small></span>
+        <span class="prop1"><h4>buttonBState</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>select state</small></span>
+        <span class="prop1"><h4>axisX</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>axisX</small></span>
+        <span class="prop1"><h4>axisY</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>axisY</small></span>
+    </span>
+      <span class="classSection">
+        <span id="GlobalEvent" class="className"><h3>GlobalEvent</h3></span><span class="baseClass"><a href="#Event">Event</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="IntersectEvent" class="className"><h3>IntersectEvent</h3></span><span class="baseClass"><a href="#Event">Event</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>angle</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>mode</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>normal</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>position</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>rotation</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>point</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>uv</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>plane</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>speed</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#_Location">_Location</a></span></small></span>
+        <span class="prop1"><h4>onFocused</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Focused</small></span>
+        <span class="prop1"><h4>onUnfocused</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Unfocused</small></span>
+        <span class="prop1"><h4>onSelected</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Selected</small></span>
+        <span class="prop1"><h4>onUnselected</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Unselected</small></span>
+        <span class="prop1"><h4>onGrabbed</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Grabbed</small></span>
+        <span class="prop1"><h4>onIntersected</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Intersected</small></span>
+    </span>
+      <span class="classSection">
+        <span id="KeyboardEvent" class="className"><h3>KeyboardEvent</h3></span><span class="baseClass"><a href="#Event">Event</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>key</h4><small><span class="propType"><a href="#STRING">STRING</a></span>string value of key pressed</small></span>
+        <span class="prop1"><h4>mode</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>key mode 0 is up 1 is down 2 is pressed</small></span>
+        <span class="prop1"><h4>onKeyDown</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="ControlField" class="className"><h3>ControlField</h3></span><span class="baseClass"><a href="#FieldLeaf">FieldLeaf</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="DateField" class="className"><h3>DateField</h3></span><span class="baseClass"><a href="#FieldLeaf">FieldLeaf</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>dayString</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>dayIndex</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="NumberField" class="className"><h3>NumberField</h3></span><span class="baseClass"><a href="#FieldLeaf">FieldLeaf</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>minValue</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Minimum value found in the record set</small></span>
+        <span class="prop1"><h4>maxValue</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Maximum value found in the record set</small></span>
+    </span>
+      <span class="classSection">
+        <span id="StringField" class="className"><h3>StringField</h3></span><span class="baseClass"><a href="#FieldLeaf">FieldLeaf</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="FieldLeaf" class="className"><h3>FieldLeaf</h3></span><span class="baseClass"><a href="#Field">Field</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">Base class for leaf nodes</span>
+        <span class="prop1"><h4>default</h4><small><span class="propType"><a href="#DATA">DATA</a></span>sets the field value if none is present</small></span>
+        <span class="prop1"><h4>name</h4><small><span class="propType"><a href="#STRING">STRING</a></span>If set then uses this name instead of the id of the control</small></span>
+        <span class="prop1"><h4>lock</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Field is only valid if it equals the lock value</small></span>
+        <span class="prop1"><h4>known</h4><small><span class="propType"><a href="#STRING">STRING</a></span>If all fields in a table are the same value then known is set to that value</small></span>
+        <span class="prop1"><h4>maxSize</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Maximum size in bytes of the field</small></span>
+        <span class="prop1"><h4>operation</h4><small><span class="propType"><a href="#STRING">STRING</a></span>If set to add then field values are added when records are the same</small></span>
+        <span class="prop1"><h4>merge</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>0 = must be present 1 = overwrite</small></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Current value of the field for the focused record</small></span>
+    </span>
+      <span class="classSection">
+        <span id="Record" class="className"><h3>Record</h3></span><span class="baseClass"><a href="#Field">Field</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+    </span>
+      <span class="classSection">
+        <span id="BoxGeometry" class="className"><h3>BoxGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>x</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>y</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>z</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="CircleGeometry" class="className"><h3>CircleGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>radius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>segments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>thetaStart</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thetaLength</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="CylinderGeometry" class="className"><h3>CylinderGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>heightSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>radialSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>radiusTop</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>radiusBottom</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thetaStart</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thetaLength</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="ExtrudeGeometry" class="className"><h3>ExtrudeGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>shape</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>depth</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>bevelEnabled</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>bevelSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>bevelSize</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>bevelThickness</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Object" class="className"><h3>Object</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="PlaneGeometry" class="className"><h3>PlaneGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>width</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>widthSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>heightSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="SphereGeometry" class="className"><h3>SphereGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>heightSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>radius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>widthSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>phiStart</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>phiLength</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thetaStart</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thetaLength</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="TorusGeometry" class="className"><h3>TorusGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>radius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>tube</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>radialSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>tubularSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>arc</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="TorusKnotGeometry" class="className"><h3>TorusKnotGeometry</h3></span><span class="baseClass"><a href="#Geometry">Geometry</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>radius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>tube</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>tubularSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>radialSegments</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>p</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>q</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="AnimationHandler" class="className"><h3>AnimationHandler</h3></span><span class="baseClass"><a href="#Handler">Handler</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>onPlaying</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+        <span class="prop1"><h4>doPlay</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+        <span class="prop1"><h4>doPause</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="PortalLogic" class="className"><h3>PortalLogic</h3></span><span class="baseClass"><a href="#Handler">Handler</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>run</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>sceneName</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>percent</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span>Percentage of environment loaded</small></span>
+        <span class="prop1"><h4>onStatusUpdate</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BasicMaterial" class="className"><h3>BasicMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>blending</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>needsUpdate</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>opacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>map</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>envMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>alphaMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BrainloopShaderMaterial" class="className"><h3>BrainloopShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>noiseTex</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>edgeTex</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BrainwaveShaderMaterial" class="className"><h3>BrainwaveShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>noiseTex</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>edgeTex</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="CloudSpinShaderMaterial" class="className"><h3>CloudSpinShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>origin</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>time</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>rpm</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>blendMode</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="DioramaGlowShaderMaterial" class="className"><h3>DioramaGlowShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>baseColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>glowColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>tiling</h4><small><span class="propType"><a href="#_Tiling">_Tiling</a></span></small></span>
+        <span class="prop1"><h4>glowNear</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>glowFar</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>colorMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>blendMode</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="DioramaTestShaderMaterial" class="className"><h3>DioramaTestShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>baseColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>tiling</h4><small><span class="propType"><a href="#_Tiling">_Tiling</a></span></small></span>
+        <span class="prop1"><h4>worldRadius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>origin</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>colorMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="EntryShaderMaterial" class="className"><h3>EntryShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="GridShaderMaterial" class="className"><h3>GridShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>tiling</h4><small><span class="propType"><a href="#_Tiling">_Tiling</a></span></small></span>
+        <span class="prop1"><h4>worldRadius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>origin</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>target0</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>blendMode</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>table</h4><small><span class="propType"><a href="#Table">Table</a></span></small></span>
+        <span class="prop1"><h4>doBuild</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="OutlineShaderMaterial" class="className"><h3>OutlineShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>opacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>pulseRate</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thickness</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="StandardMaterial" class="className"><h3>StandardMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alphaMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>aoMapIntensity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>aoMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>blending</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>emissive</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>emissiveIntensity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>emissiveMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>envMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>map</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>metalness</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>metalnessMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>normalMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>opacity</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>roughness</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>roughnessMap</h4><small><span class="propType"><a href="#Texture">Texture</a></span></small></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="TeleportShaderMaterial" class="className"><h3>TeleportShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>color</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="TreeTestShaderMaterial" class="className"><h3>TreeTestShaderMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>baseColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>pulseRate</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>thickness</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>colorMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>blendMode</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>side</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="UnderwaterMaterial" class="className"><h3>UnderwaterMaterial</h3></span><span class="baseClass"><a href="#Material">Material</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>alpha</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>baseColor</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>tiling</h4><small><span class="propType"><a href="#_Tiling">_Tiling</a></span></small></span>
+        <span class="prop1"><h4>normTiling</h4><small><span class="propType"><a href="#_Tiling">_Tiling</a></span></small></span>
+        <span class="prop1"><h4>worldRadius</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>origin</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>colorMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>normalMap</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+        <span class="prop1"><h4>transparent</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>flowSpeed</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>strength</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="CSVSource" class="className"><h3>CSVSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">CSV Data Source</span>
+        <span class="prop1"><h4>gridletFormat</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Gridlet formated CSV</small></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span>CSV dataset to use</small></span>
+    </span>
+      <span class="classSection">
+        <span id="CookieSource" class="className"><h3>CookieSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">Provides an source interface to browser cookies.</span>
+        <span class="prop1"><h4>_value</h4><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Database" class="className"><h3>Database</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>messageListSource</h4><small><span class="propType"><a href="#Source">Source</a></span>Message Source</small></span>
+        <span class="prop1"><h4>environmentListSource</h4><small><span class="propType"><a href="#Source">Source</a></span>Environment List Source</small></span>
+        <span class="prop1"><h4>messageDataSource</h4><small><span class="propType"><a href="#Source">Source</a></span>Message Source</small></span>
+        <span class="prop1"><h4>doBuildMessage</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Build messageDataSource</small></span>
+        <span class="prop1"><h4>targetEmail</h4><small><span class="propType"><a href="#STRING">STRING</a></span>target email of message</small></span>
+        <span class="prop1"><h4>doSendTable</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#Source">Source</a></span>Send a table of data to current recipeant</small></span>
+        <span class="prop1"><h4>doLogin</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_DoLogin">_DoLogin</a></span></small></span>
+        <span class="prop1"><h4>userEmail</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>password</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>token</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>status</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Initialized,NewUser,PasswordFail,Success</small></span>
+        <span class="prop1"><h4>onUpdate</h4><small><span class="propType"><a href="#RULES">RULES</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="FilteredSource" class="className"><h3>FilteredSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">Filters records based on the filter source.</span>
+        <span class="prop1"><h4>source</h4><small><span class="propType"><a href="#Control">Control</a></span>Source Data</small></span>
+        <span class="prop1"><h4>filter</h4><small><span class="propType"><a href="#Control">Control</a></span>Filter Source</small></span>
+    </span>
+      <span class="classSection">
+        <span id="JSONSource" class="className"><h3>JSONSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>_value</h4><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="MailSource" class="className"><h3>MailSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>host</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>port</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>secure</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>user</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>password</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="ScriptSource" class="className"><h3>ScriptSource</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>levelMax</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>target</h4><small><span class="propType"><a href="#Control">Control</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="Table" class="className"><h3>Table</h3></span><span class="baseClass"><a href="#Source">Source</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>mergeNewRecords</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>If true then merge will add new records if record is not found in source.</small></span>
+        <span class="prop1"><h4>debug</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>if true a detailed output of table operation is consoled</small></span>
+    </span>
+      <span class="classSection">
+        <span id="SkyDeckRiverMaterial" class="className"><h3>SkyDeckRiverMaterial</h3></span><span class="baseClass"><a href="#StandardMaterial">StandardMaterial</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>timeMsec</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>flowSpeed</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="SpecialMaterial" class="className"><h3>SpecialMaterial</h3></span><span class="baseClass"><a href="#StandardMaterial">StandardMaterial</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>roomCenter</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+        <span class="prop1"><h4>roomScale</h4><small><span class="propType"><a href="#_Vector">_Vector</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BasicTable" class="className"><h3>BasicTable</h3></span><span class="baseClass"><a href="#Table">Table</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description">Produces a table based source with records that match specific field names and values</span>
+        <span class="prop1"><h4>source</h4><small><span class="propType"><a href="#Source">Source</a></span>Source from where data is used for the table</small></span>
+        <span class="prop1"><h4>grid</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#DATA">DATA</a></span>!DEPRECATED</small></span>
+        <span class="prop1"><h4>record</h4><small><span class="propType"><a href="#Control">Control</a></span>Contains the record structure including field controls, values, locks as children</small></span>
+        <span class="prop1"><h4>recordObject</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>Return the underlying record object for the focused record</small></span>
+        <span class="prop1"><h4>recordIndex</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Current Record Index</small></span>
+        <span class="prop1"><h4>recordCount</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Count of records in table</small></span>
+        <span class="prop1"><h4>sortColumn</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Identifies which column to sort</small></span>
+        <span class="prop1"><h4>doHideKnowns</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>make known fields not visible</small></span>
+        <span class="prop1"><h4>doBuildFields</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Adds fields to records if they are not present</small></span>
+        <span class="prop1"><h4>doNewRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Creates a new record based on the values in the record Control.</small></span>
+        <span class="prop1"><h4>doUpdateRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Update Record from Definition</small></span>
+        <span class="prop1"><h4>doPushUpRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Update Source with current Record Values</small></span>
+        <span class="prop1"><h4>doRebuild</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#DATA">DATA</a></span>Rebuild the table from the source</small></span>
+        <span class="prop1"><h4>doSelectRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Use current locks to select one record</small></span>
+        <span class="prop1"><h4>doRemoveRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Remove the current record pointed to in the record Control.</small></span>
+        <span class="prop1"><h4>doIndexRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Set current record based on an index</small></span>
+        <span class="prop1"><h4>doClear</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Clear records in table</small></span>
+        <span class="prop1"><h4>doIterateRecords</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#RULES">RULES</a></span>Executed for every record in the record Control.</small></span>
+        <span class="prop1"><h4>onFormulate</h4><small><span class="propType"><a href="#RULES">RULES</a></span>Executed on every candidate record before coalation into the table.</small></span>
+    </span>
+      <span class="classSection">
+        <span id="TextCell" class="className"><h3>TextCell</h3></span><span class="baseClass"><a href="#Text">Text</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>backMtl</h4><small><span class="propType"><a href="#Material">Material</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="BasicTexture" class="className"><h3>BasicTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>wrapS</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>wrapU</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="CanvasTexture" class="className"><h3>CanvasTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>fillStyle</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Fill Color</small></span>
+        <span class="prop1"><h4>strokeStyle</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Stroke Color</small></span>
+        <span class="prop1"><h4>fontStyle</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Font size and name</small></span>
+        <span class="prop1"><h4>lineWidth</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Stroke line width</small></span>
+        <span class="prop1"><h4>doFillRect</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Fill Recangle from move point to x,y</small></span>
+        <span class="prop1"><h4>doFillText</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span>Fill Text in Canvas</small></span>
+        <span class="prop1"><h4>doStrokeText</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span>Stroke Text in Canvas</small></span>
+        <span class="prop1"><h4>doMoveTo</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Move current position</small></span>
+        <span class="prop1"><h4>doMoveToIntersect</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Move current position to intersect position</small></span>
+        <span class="prop1"><h4>doLineToIntersect</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#_Vector">_Vector</a></span>Draw a line from last point to current intersect point</small></span>
+        <span class="prop1"><h4>width</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Width of canvas</small></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Height of canvas</small></span>
+        <span class="prop1"><h4>pixelDensity</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Pixel Density per 1 meter</small></span>
+    </span>
+      <span class="classSection">
+        <span id="CubeMapTexture" class="className"><h3>CubeMapTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>path</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>urls</h4><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+        <span class="prop1"><h4>right</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>left</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>top</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>bottom</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>front</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>back</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="HDRCubeMapTexture" class="className"><h3>HDRCubeMapTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="SmartTexture" class="className"><h3>SmartTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="VideoTexture" class="className"><h3>VideoTexture</h3></span><span class="baseClass"><a href="#Texture">Texture</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>url</h4><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>loop</h4><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>load</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>play</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>pause</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span></small></span>
+        <span class="prop1"><h4>wrapS</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>wrapU</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+    </span>
+      <span class="classSection">
+        <span id="KeyboardViewCell" class="className"><h3>KeyboardViewCell</h3></span><span class="baseClass"><a href="#ViewCell">ViewCell</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>width</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>height</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>recordIndex</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>doKeyDown</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Trigger key selection event</small></span>
+        <span class="prop1"><h4>doKeyUp</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Trigger key unselection event</small></span>
+    </span>
+      <span class="classSection">
+        <span id="TableViewCell" class="className"><h3>TableViewCell</h3></span><span class="baseClass"><a href="#ViewCell">ViewCell</a><span class="tooltiptext">Parent Class</span></span>
+        <span class="description"></span>
+        <span class="prop1"><h4>doFocusRecord</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#BOOLEAN">BOOLEAN</a></span>Focus Table on Cell Record</small></span>
+        <span class="prop1"><h4>doUpdateValue</h4><div class="symbolDot" title="action">a</div><small><span class="propType"><a href="#STRING">STRING</a></span></small></span>
+        <span class="prop1"><h4>field</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#Control">Control</a></span>Returns the field for the current Cell</small></span>
+        <span class="prop1"><h4>heightMin</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>widthMin</h4><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>recordIndex</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Return unique record index</small></span>
+        <span class="prop1"><h4>rowFields</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>Current row of fields</small></span>
+        <span class="prop1"><h4>rowHeaders</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>Current row of headers</small></span>
+        <span class="prop1"><h4>rowHeight</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#FLOAT">FLOAT</a></span></small></span>
+        <span class="prop1"><h4>columnFields</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>Current column of fields</small></span>
+        <span class="prop1"><h4>columnHeaders</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#ARRAY">ARRAY</a></span>Current column of headers</small></span>
+        <span class="prop1"><h4>rowValues</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#DATA">DATA</a></span></small></span>
+        <span class="prop1"><h4>rowIndex</h4><div class="symbolDot" title="trait">t</div><small><span class="propType"><a href="#INTEGER">INTEGER</a></span></small></span>
+        <span class="prop1"><h4>columnIndex</h4><small><span class="propType"><a href="#INTEGER">INTEGER</a></span>Matches the order number in the table.</small></span>
+        <span class="prop1"><h4>value</h4><small><span class="propType"><a href="#STRING">STRING</a></span>Text Value of Cell.  This may be different than underlying data</small></span>
+    </span>
+  </div>
+</body>
+</html>

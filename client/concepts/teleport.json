@@ -1,0 +1,31 @@
+{static:true, access:'private',
+  'teleportMtl=>TeleportShaderMaterial':{color:0x00d9d6},
+  'teleportObj=>Object':{url:'assets/concepts/teleport/tpMarker_015.obj'},
+  'teleportMesh=>Mesh':{object:{renderOrder:1000, scalar:0.304, position:{x:0, y:0, z:0}, visible:false}, geometry:'concept.teleportObj', material:'concept.teleportMtl'},
+  'handle=>Handler':{
+    'intersect=>IntersectAction':{
+      onUnfocused:{'teleportMesh.object.visible':false},
+      onIntersected:[
+        {doIf:{value:'angle <= 45.0',
+          onTrue:[{'concept.teleportMesh.object.position':'point'}, {'teleportMesh.object.visible':true}],
+          onFalse:[{'teleportMesh.object.visible':false}]
+        }}],
+      onSelected:[
+        {doIf:{value:'angle <= 45.0', onTrue:[
+          {'identity.object.position':{x:['point.x - identity.camera.object.position.x'], y:['point.y'], z:['point.z - identity.camera.object.position.z']}},
+          {'teleportRequest.doTellAll':{fromId:['identity.id'], x:['point.x - identity.camera.object.position.x'], y:['point.y'], z:['point.z - identity.camera.object.position.z']}}
+        ]}},
+        {'env.defaults.teleportEvent.doBroadcast':{}},
+      ]
+    }
+  },
+  'teleportRequest=>Action':{
+    'fromId=>String':{},
+    'x=>Float':{},
+    'y=>Float':{},
+    'z=>Float':{},
+    onAction:[
+      {'env.userConcept.doFindChild':{value:['fromId'], onTrue:[{'current.object.position':{x:['x'], y:['y'], z:['z']}}]}}
+    ]
+  }
+},

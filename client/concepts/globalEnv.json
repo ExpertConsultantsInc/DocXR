@@ -1,0 +1,14 @@
+{type:'Environment',
+  'worldChangeHandler=>Handler':{'status=>String':{value:'Unknown'}},
+  '_identity=>Identity' : {waitOnServer:'env._server'},
+  '_server=>Server' : {},
+  '_chat=>VoiceChat' : {
+    'waitOnServer':'env._server',
+    'statusChangeHandler=>Handler':{'status=>String':{value:'Unknown'}}
+  },
+  '_database=>Database':{
+    'messageListSource=>Source':{},
+    'messageDataSource=>Source':{},
+    'statusChangeHandler=>Handler':{'status=>String':{value:'Unknown'}}
+  },
+}

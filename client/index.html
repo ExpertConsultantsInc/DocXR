@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>DocXR</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="/js/socket.io.js"></script>
+		<link href="main.css" rel="stylesheet" type="text/css">
+		<link rel="shortcut icon" href="assets/favicon.ico">
+	</head>
+	<body>
+		<script type="importmap">
+		  {
+		    "imports": {
+		      "three": "/js/node/node_modules/three/build/three.module.js"
+		    }
+		  }
+		</script>
+		<script type="module">
+		import {bc} from '/js/docXR.js';
+		import * as bcshaders from '/js/bcshaders.js';
+		import {TableView} from '/js/docXRScript.js';
+		import {VoiceChat}	from	'/js/audio.js';
+		var design = {
+		'_global=>External':{url:'concepts/globalEnv.json'},
+		'demo=>Environment':{
+				'userConcept=>Concept':{model:'concepts/avatar.json', startPosition:{x:0, y:0, z:0}, startRotation:{x:0, y:0, z:0}},
+				'labelHeaderMtl=>StandardMaterial':{transparent:true, color:0x006680, opacity:0.85},
+				'labelHeaderFontMtl=>StandardMaterial':{transparent:true, color:0xffffff},
+				'defaults=>Concept':{model:'concepts/defaults.json'},
+				'teleport=>Concept':{model:'concepts/teleport.json'},
+			    'hemishereLight=>HemisphereLight':{skycolor:0xbbbbbb, groundColor:0xbbbbbb, intensity:.5},
+					'pointLight=>PointLight':{object:{position:{x:1, y:2, z:0}, rotation:{x:0, y:0, z:0}}, color:0xffffff, intensity:1},
+				'hdrCubeMapTex=>HDRCubeMapTexture' : {url:'assets/HDRIs/HDRempty.bin'},
+
+				'frontFloorObj=>Object':{url:'assets/environments/demo/FrontFloor.obj'},
+				'frontGroupTex=>SmartTexture':{url:'assets/environments/demo/FrontGroup.jpg'},
+				'frontGroupMtl=>BasicMaterial':{map:'env.frontGroupTex'},
+				'frontFloorMesh=>Mesh':{object:{scalar:0.304}, geometry:'env.frontFloorObj', material:'env.frontGroupMtl'},
+				'frontRoomObj=>Object':{url:'assets/environments/demo/FrontGroup.obj'},
+				'frontRoomMesh=>Mesh':{object:{scalar:0.304}, geometry:'env.frontRoomObj', material:'env.frontGroupMtl'},
+				'hollowRoomTVObj=>Object':{url:'assets/environments/demo/Hollowroom_TV.obj'},
+				'rearGroupTex=>SmartTexture':{url:'assets/environments/demo/RearGroup.jpg'},
+				'rearGroupMtl=>BasicMaterial':{map:'env.rearGroupTex'},
+				'rearFloorObj=>Object':{url:'assets/environments/demo/RearFloor.obj'},
+				'rearFloorMesh=>Mesh':{object:{scalar:0.304}, geometry:'env.rearFloorObj', material:'env.rearGroupMtl'},
+				'rearRoomObj=>Object':{url:'assets/environments/demo/RearGroup.obj'},
+				'rearRoomMesh=>Mesh':{object:{scalar:0.304}, geometry:'env.rearRoomObj', material:'env.rearGroupMtl'},
+				'TVTex=>SmartTexture':{url:'assets/environments/demo/Hollowroom_TV.jpg'},
+				'TVMtl=>BasicMaterial':{map:'env.TVTex'},
+				'tvMesh=>Mesh':{object:{scalar:0.304}, geometry:'env.hollowRoomTVObj', material:'env.TVMtl'},
+
+/*
+Teleport only applies to the area rug in current setup. Remove teleport handler from areaRugBoundsMesh and add it to floorBlockerMesh to enable room scale navigation.
+
+						'floorBlockerObj=>Object':{url:'assets/environments/play/FloorBlocker.obj'},
+						'floorBlockerMesh=>Mesh':{object:{visible:false, scalar:0.29}, geometry:'env.floorBlockerObj'},
+*/
+
+				'areaRugTex=>BasicTexture':{url:'assets/environments/demo/area_rug.jpg'},
+				'areaRugMesh=>ImageMesh':{object:{visible:true, position:{x:0, y:0.01, z:0}, rotation:{x:1.5708, y:0, z:0}, scalar:1.5}, map:'env.areaRugTex', transparent:true, opacity:1, originalSize:{x:2048, y:1359}},
+				'areaRugBoundsMesh=>Mesh':{handler:'env.teleport.handle', object:{visible:false, position:{x:0 , y:0.011, z:0}}, 'geometry=>BoxGeometry':{x:2.8, y:0.01, z:1.8}, 'material=>StandardMaterial':{transparent:true, opacity:0, blending:1, color:0x000060}},
+
+				'skyTex=>BasicTexture':{url:'assets/environments/demo/SkyBox.jpg'},
+				'skyMesh=>Mesh':{object:{position:{x:0, y:0, z:0}}, 'material=>BasicMaterial':{map:'env.skyTex', side:1}, 'geometry=>SphereGeometry':{radius:500, widthSegments:64, heightSegments:32}},
+
+				'plaqueMtl=>StandardMaterial':{transparent:true, opacity:0, blending:1, color:0x000060, roughness:0.5, metalness:0.3, emissiveIntensity:0.7, emissive:0x006cff},
+				'plaqueFontMtl=>BasicMaterial':{color:0xffffff, transparent:true, opacity:1},
+
+				'step1Plaque=>Group':{object:{visible:true, renderOrder:100, position:{x:0, y:1.6, z:-1}, rotation:{x:0, y:0, z:0}, scalar:0.15},
+					'0=>TextCell':{align:'center', width:6, lineSpace:0.8, wordSpace:0.1, pad:{top:0.25, left:0.15, bottom:0.4}, fontSize:0.19, text:'Click your right mouse button and drag left, right, up, or down to look around the space.', 'backMtl=>BasicMaterial':{transparent:true, opacity:0.4, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0xffffff}, font:'env.defaults.body'}},
+
+				'step2Plaque=>Group':{object:{visible:false, renderOrder:100, position:{x:0, y:1.6, z:-1}, rotation:{x:0, y:0, z:0}, scalar:0},
+					'0=>TextCell':{align:'center', width:6, lineSpace:0.8, wordSpace:0.1, pad:{top:0.25, left:0.15, bottom:0.4}, fontSize:0.19, text:'Point and click using your left mouse button to select and interact with objects.', 'backMtl=>BasicMaterial':{transparent:true, opacity:0.4, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:0, color:0xffffff}, font:'env.defaults.body'}},
+
+				'step3Plaque=>Group':{object:{visible:false, renderOrder:100, position:{x:0, y:1.6, z:-1}, rotation:{x:0, y:0, z:0}, scalar:0},
+					'0=>TextCell':{align:'center', width:6, lineSpace:0.8, wordSpace:0.1, pad:{top:0.25, left:0.15, bottom:0.4}, fontSize:0.19, text:'Point at the rug and click your left mouse button to move around around the space.', 'backMtl=>BasicMaterial':{transparent:true, opacity:0.4, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:0, color:0xffffff}, font:'env.defaults.body'}},
+
+				'step4Plaque=>Group':{object:{visible:false, renderOrder:100, position:{x:0, y:1.6, z:-1}, rotation:{x:0, y:0, z:0}, scalar:0},
+					'0=>TextCell':{align:'center', width:5.5, lineSpace:0.8, wordSpace:0.1, pad:{top:0.25, left:0.15, bottom:0.4}, fontSize:0.19, text:'Tables can display inline or external data sources. Click the Year key and then    click a year to filter the main table.', 'backMtl=>BasicMaterial':{transparent:true, opacity:0.4, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:0, color:0xffffff}, font:'env.defaults.body'}},
+
+				'nextButtonMtl=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000000, emissiveIntensity:0, emissive:0x93e20b},
+				'nextFontMtl=>BasicMaterial':{color:0xffffff, transparent:true, opacity:1},
+
+				'next1Button=>Group':{handler:'env.next1ButtonHandler', object:{visible:true, renderOrder:100, position:{x:0, y:1.51, z:-0.999}, rotation:{x:0, y:0, z:0}, scalar:0.12},
+					'0=>TextCell':{align:'center', width:1, lineSpace:0.6, wordSpace:0.15, pad:{top:0.15, left:0.15}, fontSize:0.2, text:'NEXT', backMtl:'env.nextButtonMtl', fontMtl:'env.nextFontMtl', font:'env.defaults.body'}},
+
+				'next2Button=>Group':{handler:'env.next2ButtonHandler', object:{visible:false, renderOrder:100, position:{x:0, y:1.51, z:-0.999}, rotation:{x:0, y:0, z:0}, scalar:0.12},
+					'0=>TextCell':{align:'center', width:1, lineSpace:0.6, wordSpace:0.15, pad:{top:0.15, left:0.15}, fontSize:0.2, text:'NEXT', backMtl:'env.nextButtonMtl', fontMtl:'env.nextFontMtl', font:'env.defaults.body'}},
+
+				'next3Button=>Group':{handler:'env.next3ButtonHandler', object:{visible:false, renderOrder:100, position:{x:0, y:1.51, z:-0.999}, rotation:{x:0, y:0, z:0}, scalar:0.12},
+					'0=>TextCell':{align:'center', width:1, lineSpace:0.6, wordSpace:0.15, pad:{top:0.15, left:0.15}, fontSize:0.2, text:'NEXT', backMtl:'env.nextButtonMtl', fontMtl:'env.nextFontMtl', font:'env.defaults.body'}},
+
+				'iconHandTex=>BasicTexture':{url:'assets/environments/demo/icon_hand.png'},
+				'iconPlayTex=>BasicTexture':{url:'assets/environments/demo/icon_play.png'},
+				'gltf1=>GLTF':{handler:'env.gltfSelectionHandler', data:{clip:'animation_0'}, url:'assets/environments/demo/BoxAnimated.glb', object:{visible:false, position:{x:2.5 , y:2, z:-3}, rotation:{x:0, y:0, z:0}, scalar:0.75}},
+
+				'machineMap=>BasicTexture':{url:'assets/environments/demo/ScanningMachine_diffuse.jpg'},
+				'machineMetal=>BasicTexture':{url:'assets/environments/demo/ScanningMachine_metalness.jpg'},
+				'machineRough=>BasicTexture':{url:'assets/environments/demo/ScanningMachine_roughness.jpg'},
+				'machineEmissive=>BasicTexture':{url:'assets/environments/demo/ScanningMachine_emission.jpg'},
+				'machineObj=>Object':{url:'assets/environments/demo/ScanningMachine.obj'},
+				'machineMtl=>StandardMaterial':{emissive:16777215, transparent:true, roughness:1, map:'env.machineMap', emissiveMap:'env.machineEmissive', metalnessMap:'env.machineMetal', roughnessMap:'env.machineRough'},
+				'machineMesh=>Mesh':{handler:'env.machineHandler', data:{clickTarget:'gridletMesh'}, object:{visible:false, scalar:0.304, position:{x:-2.5, y:0, z:-3}, rotation:{x:0, y:-2.35619, z:0}, castShadow:true, receiveShadow:true}, geometry:'env.machineObj', material:'env.machineMtl'},
+
+				'gridletTex=>BasicTexture':{url:'assets/environments/demo/gridlet_scanner.jpg'},
+				'gridletMesh=>ImageMesh':{object:{visible:false, renderOrder:100, position:{x:-2.5, y:1.8, z:-3}, rotation:{x:0, y:0.575959, z:0}, scalar:0.9}, map:'env.gridletTex', transparent:true, opacity:1, originalSize:{x:2011, y:441}},
+
+				'machineHandler=>Handler':{'active=>Pointer':{},
+					'intersect=>IntersectAction':{
+						onFocused:{doIf:{value:'parent.active !== current', onTrue:[{'current.focusHighlight=>Mesh':{geometry:'current.geometry', 'material=>OutlineShaderMaterial':{transparent:true, opacity:0.5, color:0x00ff00, pulseRate:0, thickness:1}}}]}},
+						onUnfocused:{doIf:{value:'parent.active !== current', onTrue:[{'current.focusHighlight.doRemove':true}]}},
+						onSelected:[
+							{doIf:{value:'parent.active != current', onTrue:[
+								{'parent.unactivate.do':{}},
+								{'parent.active':['current']},
+								{'env.gridletMesh.object.visible':true},
+								{'parent.active.activeHighlight=>Mesh':{geometry:'current.geometry', 'material=>OutlineShaderMaterial':{transparent:true, opacity:0.5, color:0x00ff00, pulseRate:0.5, thickness:1}}},
+							], onFalse:[{'parent.unactivate.do':{}}]}}
+						],
+					},
+					'unactivate=>Action':{
+						onAction:[
+							{doIf:{value:'parent.active != empty', onTrue:[
+								{'env.gridletMesh.object.visible':false},
+								{'parent.active.activeHighlight.doRemove':true},
+								{'parent.active.focusHighlight.object.visible':false},
+								{'parent.active':['empty']}
+							]}},
+						],
+					},
+				},
+
+				'next1ButtonHandler=>Handler':{
+					'intersect=>IntersectAction':{
+						onFocused:[
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':1},
+							{'env.nextFontMtl.color':0x000000}, ],
+						onUnfocused:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':0},
+							{'env.nextFontMtl.color':0xffffff}, ],
+						onSelected:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:50, toTime:100}},
+							{'env.step1Plaque.object.visible':false},
+							{'current.object.visible':false},
+							{'env.step2Plaque.object.visible':true},
+							{'env.step2Plaque.object.scalar.doAnimation':{from:0, to:0.15, fromTime:500, toTime:600}},
+							{'env.step2Plaque.0.fontMtl.opacity.doAnimation':{from:0, to:1, fromTime:600, toTime:1100}},
+							{'doWait':1100},
+							{'env.next2Button.object.visible':true},
+							{'env.gltf1.object.visible':true},
+							{'env.gltf1.object.position.y.doAnimation':{from:2, to:0, fromTime:0, toTime:200}},
+							{'env.machineMesh.object.visible':true},
+							{'env.machineMesh.object.position.y.doAnimation':{from:2, to:0, fromTime:0, toTime:200}},
+						],
+					},
+				},
+				'next2ButtonHandler=>Handler':{
+					'intersect=>IntersectAction':{
+						onFocused:[
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':1},
+							{'env.nextFontMtl.color':0x000000}, ],
+						onUnfocused:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':0},
+							{'env.nextFontMtl.color':0xffffff}, ],
+						onSelected:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:50, toTime:100}},
+							{'env.step2Plaque.object.visible':false},
+							{'current.object.visible':false},
+							{'env.step3Plaque.object.visible':true},
+							{'env.step3Plaque.object.scalar.doAnimation':{from:0, to:0.15, fromTime:500, toTime:600}},
+							{'env.step3Plaque.0.fontMtl.opacity.doAnimation':{from:0, to:1, fromTime:600, toTime:1100}},
+							{'doWait':1100},
+							{'env.next3Button.object.visible':true},
+							{'env.areaRugBoundsMesh.object.visible':true},
+						],
+					},
+				},
+
+				'next3ButtonHandler=>Handler':{
+					'intersect=>IntersectAction':{
+						onFocused:[
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':1},
+							{'env.nextFontMtl.color':0x000000},
+						],
+						onUnfocused:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'env.nextButtonMtl.emissiveIntensity':0},
+							{'env.nextFontMtl.color':0xffffff},
+						],
+						onSelected:[
+							{'current.object.scalar.doAnimation':{from:0.15, to:0.12, fromTime:0, toTime:50}},
+							{'current.object.scalar.doAnimation':{from:0.12, to:0.15, fromTime:50, toTime:100}},
+							{'env.step3Plaque.object.visible':false},
+							{'current.object.visible':false},
+							{'env.step4Plaque.object.visible':true},
+							{'env.step4Plaque.object.scalar.doAnimation':{from:0, to:0.15, fromTime:500, toTime:600}},
+							{'env.step4Plaque.0.fontMtl.opacity.doAnimation':{from:0, to:1, fromTime:600, toTime:1100}},
+							{'env.gridletMesh.object.visible':false},
+							{'env.gltfGadgets.buttons.object.visible':false},
+							{'env.gltf1.object.position.y.doAnimation':{from:0, to:4, fromTime:600, toTime:1100, ease:1}},
+							{'env.machineMesh.object.position.y.doAnimation':{from:0, to:4, fromTime:600, toTime:1100, ease:1}},
+							{'env.dataTable.object.visible':true},
+							{'env.dataTable.object.position.z.doAnimation':{from:-4, to:0, fromTime:600, toTime:1100}},
+							{'doWait':1100},
+						],
+					},
+				},
+
+				'gltfGadgets=>Group':{object:{visible:true, position:{x:0, y:0, z:0}},
+					'buttons=>Group':{object:{visible:false, position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}},
+						'moveButton=>Group':{handler:'env.gltfMoveButtonHandler', object:{visible:true, position:{x:-0.1, y:0.8, z:0}, scalar:0.75},
+							'buttonMesh=>Mesh':{object:{rotation:{x:1.5708, y:0, z:0}, scalar:0.115}, 'geometry=>CylinderGeometry':{radiusTop:1, radiusBottom:1, height:0.15, radialSegments:36, heightSegments:1}, 'material=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000060, roughness:0.5, metalness:0.3, emissiveIntensity:0, emissive:0x006cff}},
+							'buttonIcon=>ImageMesh':{object:{position:{x:-0.005, y:0, z:0.02}, scalar:0.17}, map:'env.iconHandTex', transparent:true, opacity:1, useUnitScale:true},
+						},
+
+						'animateButton=>Group':{handler:'env.gltfAnimateButtonHandler', object:{visible:true, position:{x:0.1, y:0.8, z:0}, scalar:0.75},
+							'buttonMesh=>Mesh':{object:{rotation:{x:1.5708, y:0, z:0}, scalar:0.115}, 'geometry=>CylinderGeometry':{radiusTop:1, radiusBottom:1, height:0.15, radialSegments:36, heightSegments:1}, 'material=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000060, roughness:0.5, metalness:0.3, emissiveIntensity:0, emissive:0x006cff}},
+							'buttonIcon=>ImageMesh':{object:{renderOrder:50, position:{x:0, y:0, z:0.02}, scalar:0.17}, map:'env.iconPlayTex', transparent:true, opacity:1, useUnitScale:true},
+						},
+					},
+				},
+
+				// GLTF Handler
+				'targetItem=>Pointer':{},
+				'gltfSelectionHandler=>Handler':{'active=>Pointer':{},
+					'intersect=>IntersectAction':{
+						onSelected:[
+							{doIf:{value:'parent.active != current', onTrue:[
+								{'parent.unactivate.do':{}},
+								{'parent.active':['current']},
+								{'env.targetItem':['current']},
+								{'env.gltfGadgets.object.position':{x:'current.object.position.x', y:'current.object.position.y + 0.6', z:'current.object.position.z'}},
+								{'env.gltfGadgets.buttons.object.visible':true},
+								{'env.gltfGadgets.doLookAt':['identity.head']},
+							], onFalse:[{'parent.unactivate.do':{}}]}}
+						],
+					},
+					'unactivate=>Action':{
+						onAction:[
+							{doIf:{value:'parent.active != empty', onTrue:[
+								{'env.gltfGadgets.buttons.object.visible':false},
+								{'env.targetItem':['empty']},
+								{'parent.active':['empty']},
+							]}},
+						],
+					},
+				},
+
+				'gltfMoveButtonHandler=>Handler':{
+					'intersect=>IntersectAction':{
+						onGrabbed:[
+							{'env.targetItem.object':{
+								'position':{x:'env.targetItem.object.position.x + speed.position.x * 4', z:'env.targetItem.object.position.z + speed.position.z * 4'},
+								'rotation.y':'env.targetItem.object.rotation.y + speed.rotation.y' }},
+							{'env.gltfGadgets.object':{
+								'position':{x:'env.gltfGadgets.object.position.x + speed.position.x * 4', z:'env.gltfGadgets.object.position.z + speed.position.z * 4'},
+								'rotation.y':'env.gltfGadgets.object.rotation.y + speed.rotation.y' }},
+						],
+						onFocused:{'current.object.scalar.doAnimation':{from:0.75, to:0.85, fromTime:0, toTime:50}},
+						onUnfocused:{'current.object.scalar.doAnimation':{from:0.85, to:0.75, fromTime:0, toTime:50}},
+						onSelected:[
+							{'current.object.scalar.doAnimation':{from:0.85, to:0.75, fromTime:0, toTime:50}},
+							{'current.object.scalar.doAnimation':{from:0.75, to:0.85, fromTime:50, toTime:100}},
+							{'current.buttonMesh.material.color':0x00c500},
+						],
+						onUnselected:[
+							{'current.buttonMesh.material.color':0x000060},
+						],
+					},
+				},
+
+				'gltfAnimateButtonHandler=>Handler':{'target=>Pointer':{},
+					'intersect=>IntersectAction':{
+						onFocused:{'current.object.scalar.doAnimation':{from:0.75, to:0.85, fromTime:0, toTime:50}},
+						onUnfocused:{'current.object.scalar.doAnimation':{from:0.85, to:0.75, fromTime:0, toTime:50}},
+						onSelected:[
+							{'current.object.scalar.doAnimation':{from:0.85, to:0.75, fromTime:0, toTime:50}},
+							{'current.object.scalar.doAnimation':{from:0.75, to:0.85, fromTime:50, toTime:100}},
+							{'current.buttonMesh.material.color':0x00c500},
+							{'doWait':50},
+							{'current.buttonMesh.material.color':0x000060},
+							{'current.object.scalar.doAnimation':{from:0.85, to:0.75, fromTime:50, toTime:100}},
+							{'env.targetItem.play':['env.targetItem.data.clip']},
+						],
+					},
+				},
+
+				'dataTable=>Group':{object:{visible:false, position:{x:0.3, y:0.1, z:-4}, rotation:{x:-0.34906}, scalar:0.8},
+
+					'genericSource=>JSONSource':[
+						{Region:'Adamstown', Year:'2015', Income:'$62,230'},
+						{Region:'Brunswick', Year:'2016', Income:'$34,490'},
+						{Region:'Frederick', Year:'2017', Income:'$33,782'},
+						{Region:'Middletown', Year:'2015', Income:'$45,100'},
+						{Region:'New Market', Year:'2015', Income:'$49,531'},
+						{Region:'Thurmont', Year:'2016', Income:'$35,645'},
+						{Region:'Urbana', Year:'2017', Income:'$67,567'},
+						{Region:'Walkersville', Year:'2015', Income:'$40,922'}
+					],
+
+					'cellGeo=>ExtrudeGeometry':{'shape=>RectangleShape':{width:1, height:.25, radius:.05, depth:0.02}},
+
+					'knownPane=>Group':{object:{position:{x:-1.2, y:1.89, z:-1}, scalar:0.3},
+						onInitialized:[
+							{'env.dataTable.genericPane.table.doBuildFields':{
+								'userType=>String':{value:'String'},
+								'expanded=>Boolean':{value:false}
+							}},
+							{'env.dataTable.genericPane.table.doRebuild':{}},
+							{'env.dataTable.genericPane.view.doBuildView':{}},
+							{'table.doRebuild':{}},
+							{'view.doBuildView':{}},
+						],
+						'draw=>Action':{
+							onAction:[
+								{'parent.table.doRebuild':true},
+								{'parent.view.doBuildView':true},
+								{'parent.view.fieldCells.doLoop':[
+									{'current.doFocusRecord':true},
+									{doIf:{value:'parent.table.record.lock !== empty', onTrue:[
+										{'current.front.fontMtl.color':0xff0000}
+									]}}
+								]},
+							]
+						},
+						'table=>BasicTable' :{
+							'record=>Record':{
+								'key=>StringField':{name:'id', order:0},
+								'known=>StringField':{order:1, default:'*'},
+								'lock=>StringField':{order:2, default:''},
+								'relevant=>StringField':{order:3, lock:true}
+							},
+							'source=>ScriptSource':{target:'env.dataTable.genericPane.table.record'},
+						},
+						'view=>TableView':{maxFields:2,
+							table:'parent.table',
+							onBuild:[
+								{'current.zone.isValue':{
+									header:[
+										{current:{
+										'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+											'material=>Copy':'env.dataTable.plaqueHeaderMtl', 
+											'geometry=>Copy':'env.dataTable.cellGeo'},
+										'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+											'fontMtl=>Copy':'env.dataTable.plaqueHeaderFontMtl', 
+											font:'env.defaults.header'}, }},
+									],
+									field:[
+										{current:{
+											'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+												'material=>Copy':'env.dataTable.plaqueBodyMtl', 
+												'geometry=>Copy':'env.dataTable.cellGeo'},
+											'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, align:'left', width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+												'fontMtl=>Copy':'env.dataTable.plaqueBodyFontMtl', 
+												font:'env.defaults.body'}, }},
+									{'current.handler':'fieldHandler'}
+								 ]
+							 }},
+							],
+							'fieldHandler=>Handler':{
+								'intersect=>IntersectAction':{
+									onFocused:[{'current.rowFields.doLoop':{'current.object.opacity':1}}],
+									onUnfocused:[{'current.rowFields.doLoop':{'current.object.opacity':.7}}],
+									onSelected:[
+										{'current.doFocusRecord':{}},
+										{'env.dataTable.lockField.doRename':['env.dataTable.knownPane.table.record.key']},
+										{'env.dataTable.genericField':[['#env.dataTable.genericPane.table.record. + env.dataTable.knownPane.table.record.key']]},
+										{'world.doLog':'Point to'},
+										{'world.doLog2':'env.dataTable.genericField'},
+										{doIf:{
+											value:'env.dataTable.genericField.lock == empty',
+											onTrue:[
+												{'env.dataTable.lockPane.table.doRebuild':true},
+												{'env.dataTable.lockPane.view':{doBuildView:true, 'object.visible':true}},
+											],
+											onFalse:[
+												{'env.dataTable.genericField.lock':''},
+												{'env.dataTable.genericPane.table.doHideKnowns':true},
+												{'env.dataTable.genericPane.table.doRebuild':true},
+												{'env.dataTable.genericPane.view.doBuildView':true},
+											],
+										}},
+										{'env.dataTable.knownPane.draw.do':{}},
+									],
+								},
+							},
+						},
+					},
+
+					'genericPane=>Concept':{object:{position:{x:0, y:1.5, z:-1}, scalar:.4},
+						'table=>BasicTable' :{
+							'record=>Record':{},
+							source:'env.dataTable.genericSource',
+						},
+						'view=>TableView':{rowMin:1, rowMax:8,
+							'parameter=>Integer':{value:0},
+							table:'parent.table',
+							onBuild:[
+								{'current.zone.isValue':{
+									header:[
+										{'current.field.userType.value.isValue':{
+											'String':[
+												{current:{
+												'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+													'material=>Copy':'env.dataTable.plaqueHeaderMtl', 
+													'geometry=>Copy':'env.dataTable.cellGeo'},
+												'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+													'fontMtl=>Copy':'env.dataTable.plaqueHeaderFontMtl', 
+													font:'env.defaults.header'}, }},
+											]
+										}},
+										{'current.handler':'headerHandler'},
+									],
+									field:[
+										{'current.field.userType.value.isValue':{
+											'String':{current:{
+												'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+													'material=>Copy':'env.dataTable.plaqueBodyMtl', 
+													'geometry=>Copy':'env.dataTable.cellGeo'},
+												'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, align:'left', width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+													'fontMtl=>Copy':'env.dataTable.plaqueBodyFontMtl', 
+													font:'env.defaults.body'}, }},
+										}},
+										{'current.handler':'fieldHandler'}
+								 ]
+							 }},
+							],
+							'headerHandler=>Handler':{
+								'shrinkWidth=>Integer':{value:0},
+								'expandWidth=>Integer':{value:0},
+								'effect=>Effect':{},
+								'intersect=>IntersectAction':{
+									onFocused:[{'current.back.material.color':0x00ffff}],
+									onUnfocused:[{'current.back.material.color':26240}],
+									onSelected:[
+										{doIf:{value:'current.field.expanded == true',
+											onTrue:[
+												{'current.field.expanded':false},
+												{'current.columnFields.doLoop':[{'current.front.width':1}]},
+												{'current.columnHeaders.doLoop':[{'current.front.width':1}]},
+												{'parent.effect.doAnimate':{from:['current.field.maxLength * .12'], to:1, fromTime:0, toTime:100,
+													onTick:[
+														{'current.columnFields.doLoop':[
+															{'current.back.object.scale.x':['parent.now']},
+														]},
+														{'current.columnHeaders.doLoop':[
+															{'current.back.object.scale.x':['parent.now']},
+														]},
+														{'concept.view.doAdjustView':{}},
+													]
+												}}
+											], onFalse:[
+												{'current.field.expanded':true},
+												{'parent.effect.doAnimate':{from:1, to:['current.field.maxLength * .12'], fromTime:0, toTime:100,
+													onTick:[
+														{'current.columnFields.doLoop':[
+															{'current.back.object.scale.x':['parent.now']},
+														]},
+														{'current.columnHeaders.doLoop':[
+															{'current.back.object.scale.x':['parent.now']},
+														]},
+														{'concept.view.doAdjustView':true},
+													]
+												}},
+												{'current.columnFields.doLoop':[{'current.front.width':['current.field.maxLength * .12']}]},
+												{'current.columnHeaders.doLoop':[{'current.front.width':['current.field.maxLength * .12']}]},
+											]
+										}},
+									]
+								},
+							},
+							'fieldHandler=>Handler':{
+								'intersect=>IntersectAction':{
+									onFocused:[{'current.rowFields.doLoop':{'current.object.opacity':1}}],
+									onUnfocused:[{'current.rowFields.doLoop':{'current.object.opacity':.7}}],
+									onSelected:[
+										{'world.doLog':'First Column Cell'},
+										{'world.doLog2':'current.firstColumnField'},
+									],
+								}
+							},
+						},
+					},
+					'categoryActive=>Pointer':{},
+					'genericField=>Pointer':{},
+					'lockField=>Pointer':{value:'env.dataTable.lockPane.table.record.menuItem'},
+					'lockPane=>Group':{object:{visible:true, position:{x:-1.2, y:1.25, z:-1}, scalar:0.3},
+						'table=>BasicTable' :{
+							'record=>Record':{
+								'menuItem=>StringField':{order:0},
+							},
+							source:'env.dataTable.genericPane.table',
+						},
+						'view=>TableView':{
+							table:'parent.table',
+							onBuild:[
+								{'current.zone.isValue':{
+									header:[
+										{current:{
+										'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+											'material=>Copy':'env.dataTable.plaqueHeaderMtl', 
+											'geometry=>Copy':'env.dataTable.cellGeo'},
+										'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+											'fontMtl=>Copy':'env.dataTable.plaqueHeaderFontMtl', 
+											font:'env.defaults.header'}, }},
+									],
+									field:[
+										{current:{
+											'back=>Mesh':{object:{scale:{x:1.2}}, 'action=>String':{value:'Stop'}, 
+												'material=>Copy':'env.dataTable.plaqueBodyMtl', 
+												'geometry=>Copy':'env.dataTable.cellGeo'},
+											'front=>Text':{object:{opacity:1, position:{y:-0.01, z:0.02}}, align:'left', width:1.2, wordSpace:0.03, lineSpace:0.5, fontSize:0.1, text:['current'],
+												'fontMtl=>Copy':'env.dataTable.plaqueBodyFontMtl', 
+												font:'env.defaults.body'}, }},
+									{'current.handler':'lockHandler'}
+								 ]
+							 }},
+							],
+							'lockHandler=>Handler':{
+								'intersect=>IntersectAction':{
+									onFocused:[{'world.doLog':'LOCK!'},{'current.rowFields.doLoop':{'current.object.opacity':1}}],
+									onUnfocused:[{'current.rowFields.doLoop':{'current.object.opacity':.7}}],
+									onSelected:[
+										{'env.dataTable.genericField.lock':['current']},
+										{'env.dataTable.genericPane.table.doHideKnowns':true},
+										{'env.dataTable.genericPane.table.doRebuild':true},
+										{'env.dataTable.genericPane.view.doBuildView':true},
+										{'env.dataTable.knownPane.draw.do':{}},
+										{'env.dataTable.lockPane.view.object.visible':false},
+									],
+								},
+							},
+						},
+					},
+
+				'plaqueHeaderMtl=>StandardMaterial':{transparent:true, color:0x006680},
+				'plaqueHeaderFontMtl=>StandardMaterial':{transparent:true, color:0xFFFFFF},
+				'plaqueBodyMtl=>StandardMaterial':{transparent:true, blending:2, color:0xFFFFFF, opacity:.7, roughness:0.2, metalness:1, envMap:'env.hdrCubeMapTex'},
+				'plaqueBodyFontMtl=>StandardMaterial':{transparent:true, color:0x000000, opacity:0.7},
+				'hdrCubeMapMtl=>StandardMaterial':{color:0xFFFFFF, roughness:0.3, metalness:1, envMap:'env.hdrCubeMapTex'},
+				},
+
+			},
+
+		};
+		bc.control.World.newWorld(design, 'demo', (env)=>{});
+		</script>
+	</body>
+</html>

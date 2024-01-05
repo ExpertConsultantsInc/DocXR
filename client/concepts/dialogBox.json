@@ -1,0 +1,83 @@
+{
+  'defaults=>Concept':{model:'concepts/defaults.json'},
+  'hdrCubeMapTex=>HDRCubeMapTexture' : {url:'assets/HDRIs/HDRempty.bin'},
+  'dialogType=>String':{value:'question'},
+  'dialogPane=>Group':{object:{visible:false},
+    'boxMesh=>Mesh':{object:{position:{x:0, y:0, z:0}, rotation:{x:1.5708, y:0, z:0}}, 'geometry=>BoxGeometry':{x:3.5, y:0.02, z:1.2}, 'material=>BasicMaterial':{transparent:true, opacity:1, color:0xFFFFFF}},
+    'dialogText=>TextCell':{object:{renderOrder:1001, position:{x:0, y:0.3, z:0.01}}, align:'center', width:3.2, lineSpace:0.8, wordSpace:0.05, pad:{top:0.15, left:0.15}, fontSize:0.12, text:'This is the message text.', 'backMtl=>BasicMaterial':{transparent:true, opacity:0, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0x000000}, font:'concept.defaults.body'},
+    'buttonsRow=>Group':{object:{position:{x:0, y:-0.35, z:0.01}},
+      'buttonNo=>Group':{handler:'noButtonHandler', object:{visible:false, position:{x:-0.42, y:0, z:0}, scalar:0.35},
+        'buttonMesh=>Mesh':{'geometry=>ExtrudeGeometry':{'shape=>RectangleShape':{width:2, height:0.8, radius:0.4}, depth:0.03}, 'material=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000000, roughness:0.5, metalness:0.5, envMap:'concept.hdrCubeMapTex'}},
+        'buttonText=>TextCell':{object:{renderOrder:50, position:{x:0, y:0, z:0.04},},
+          align:'center', width:2, wordSpace:0.015, pad:{top:0, left:0}, fontSize:0.3, text:'NO',
+          'backMtl=>BasicMaterial':{transparent:true, opacity:0, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0xffffff}, font:'concept.defaults.header'},
+      },
+      'buttonYes=>Group':{handler:'yesButtonHandler', object:{visible:false, position:{x:0.42, y:0, z:0}, scalar:0.35},
+        'buttonMesh=>Mesh':{'geometry=>ExtrudeGeometry':{'shape=>RectangleShape':{width:2, height:0.8, radius:0.4}, depth:0.03}, 'material=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000000, roughness:0.5, metalness:0.5, envMap:'concept.hdrCubeMapTex'}},
+        'buttonText=>TextCell':{object:{renderOrder:50, position:{x:0, y:0, z:0.04},},
+          align:'center', width:2, wordSpace:0.015, pad:{top:0, left:0}, fontSize:0.3, text:'YES',
+          'backMtl=>BasicMaterial':{transparent:true, opacity:0, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0xffffff}, font:'concept.defaults.header'},
+      },
+      'buttonOk=>Group':{handler:'okButtonHandler', object:{visible:false, position:{x:0, y:0, z:0}, scalar:0.35},
+        'buttonMesh=>Mesh':{'geometry=>ExtrudeGeometry':{'shape=>RectangleShape':{width:2, height:0.8, radius:0.4}, depth:0.03}, 'material=>StandardMaterial':{transparent:true, opacity:1, blending:1, color:0x000000, roughness:0.5, metalness:0.5, envMap:'concept.hdrCubeMapTex'}},
+        'buttonText=>TextCell':{object:{renderOrder:50, position:{x:0, y:0, z:0.04},},
+          align:'center', width:2, wordSpace:0.015, pad:{top:0, left:0}, fontSize:0.3, text:'OK',
+          'backMtl=>BasicMaterial':{transparent:true, opacity:0, color:0x000000}, 'fontMtl=>BasicMaterial':{transparent:true, opacity:1, color:0xffffff}, font:'concept.defaults.header'},
+      },
+    },
+  },
+  'open=>Action':{
+    'callback=>Pointer':{},
+    'text=>String':{value:''},
+    onAction:[
+      {'dialogPane.dialogText.text':['text.value']},
+      {doIf:{value:'dialogType == #question', onTrue:[
+        {'dialogPane.buttonsRow.buttonNo.object.visible':true},
+        {'dialogPane.buttonsRow.buttonYes.object.visible':true},
+      ]}},
+      {doIf:{value:'dialogType == #prompt', onTrue:[
+        {'dialogPane.buttonsRow.buttonOk.object.visible':true},
+      ]}},
+      {'concept.object.position.x':'identity.object.position.x + identity.head.object.direction.x'},
+      {'concept.object.position.y':'identity.object.position.y + identity.head.object.position.y - 0.2'},
+      {'concept.object.position.z':'identity.object.position.z + identity.head.object.direction.z'},
+      {'concept.doLookAt':['identity.head']},
+      {'dialogPane.object.visible':true},
+    ]
+  },
+  'close=>Action':{
+    onAction:[
+      {'dialogPane.object.visible':false},
+    ]
+  },
+  'noButtonHandler=>Handler':{
+    'intersect=>IntersectAction':{
+      onFocused:[{'current.object.scalar.doAnimation':{from:0.35, to:0.45, fromTime:0, toTime:50}}],
+      onUnfocused:[{'current.object.scalar.doAnimation':{from:0.45, to:0.35, fromTime:0, toTime:50}}],
+      onSelected:[
+        {'current.object.scalar':0.35},
+        {'concept.open.callback.do':{'response.value':'no'}}
+      ],
+    },
+  },
+  'yesButtonHandler=>Handler':{
+    'intersect=>IntersectAction':{
+      onFocused:[{'current.object.scalar.doAnimation':{from:0.35, to:0.45, fromTime:0, toTime:50}}],
+      onUnfocused:[{'current.object.scalar.doAnimation':{from:0.45, to:0.35, fromTime:0, toTime:50}}],
+      onSelected:[
+        {'current.object.scalar':0.35},
+        {'concept.open.callback.do':{'response.value':'yes'}}
+      ],
+    },
+  },
+  'okButtonHandler=>Handler':{
+    'intersect=>IntersectAction':{
+      onFocused:[{'current.object.scalar.doAnimation':{from:0.35, to:0.45, fromTime:0, toTime:50}}],
+      onUnfocused:[{'current.object.scalar.doAnimation':{from:0.45, to:0.35, fromTime:0, toTime:50}}],
+      onSelected:[
+        {'current.object.scalar':0.35},
+        {'concept.open.callback.do':{'response.value':'ok'}}
+      ],
+    },
+  },
+},

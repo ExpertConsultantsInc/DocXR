@@ -1,0 +1,45 @@
+{type:'Concept', access:'private',
+	'portalBkgrndTex=>SmartTexture':{url:'assets/concepts/portal/LoadingEntry.jpg'},
+	'portalLogoTex=>SmartTexture':{url:'assets/concepts/portal/LoadingLogo.jpg'},
+	'clickAudio=>Audio3D':{url:'assets/concepts/portal/Click_Zapsplat_003.mp3'},
+	'shaderMat=>ShaderMaterial':{
+		side:2,
+		'uniforms=>Uniforms':{
+			'color=>Integer':{value:0xff9900},
+			'percent=>Float':{value: 0},
+			'logoScale=>Float':{value: 0.7},
+			'background=>Pointer':{value:['portalBkgrndTex']},
+			'logo=>Pointer':{value:['portalLogoTex']},
+		},
+		'vertexShader=>ExternalString':{url:'assets/shaders/portalVertexShader.txt'},
+		'fragmentShader=>ExternalString':{url:'assets/shaders/portalFragmentShader.txt'},
+	},
+	'effect=>Effect':{},
+	'portal=>PortalAction':{sceneName:'cavePromo',
+		onStatusUpdate:[
+			{'shaderMat.uniforms.percent':['percent * 100']},
+			{'shaderMat.doUpdate':{}}
+		],
+	},
+	'portalMesh=>Mesh':{'geometry=>CircleGeometry':{radius:.3, segments:50}, material:['shaderMat'],
+		'intersect=>IntersectAction':{
+			onFocused:[
+				{'shaderMat.uniforms.color':0xfff6e5},
+				{'shaderMat.doUpdate':{}},
+				{'effect.doAnimate':{value:'current.object.scalar', from:1, to:1.05, fromTime:0, toTime:50}}
+			],
+			onUnfocused:[
+				{'shaderMat.uniforms.color':0xff9900},
+				{'shaderMat.doUpdate':{}},
+				{'effect.doAnimate':{value:'current.object.scalar', from:1.05, to:1, fromTime:50, toTime:100}}
+			],
+			onSelected:[
+				{'effect.doAnimate':{value:'current.object.scalar', from:1.05, to:1, fromTime:0, toTime:50}},
+				{'effect.doAnimate':{value:'current.object.scalar', from:1, to:1.05, fromTime:50, toTime:100}},
+				{'clickAudio.doPlayAt':['current']},
+				{'doUnfocus':{}},
+				{'portal.doPort':{}},
+			]
+		}
+	},
+}

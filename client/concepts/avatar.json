@@ -1,0 +1,457 @@
+{static:true, type:'Concept',
+  'startPosition=>Vector':{},
+  'startRotation=>Vector':{},
+  'envComplete=>EnvironmentCompleteAction':{
+    onAction:[
+      {'world.doLog':['#"My ID: "+userId']},
+      {'self.doBuild':{id:['userId']}},
+      {'world._global._database.status.isValue':{
+        'Success':[
+          {'avatarTable.doQuery':{'record.avatarType.lock':'default'}},
+          {'self.current.color':['avatarTable.record.color']},
+          {'self.current.nickname':['avatarTable.record.nickname']},
+          {'changeColorHandler.doBroadcast':{color:['avatarTable.record.color']}},
+        ]
+      }},
+    ]
+  },
+  'userAction=>UserAction':{
+    onAdd:[
+      {'world.doLog':['#"addUser id:" + targetUserId + #" userId:"+userId + #" nickname:" + identity.nickname']},
+      {'addUserRequest.doTell':{'toId':['targetUserId'], 'fromId':['userId'], position:['identity.object.position'], rotation:['identity.object.rotation'], color:['self.current.color'], nickname:['identity.nickname']}},
+      {'env.doIterateControllers':{onNext:[
+        {'addControllerRequest.doTell':{'toId':['parent.targetUserId'], 'fromId':['parent.userId'], 'name':['current.attach']}}
+      ]}}
+    ],
+    onRemove:[
+      {'world.doLog':['#"removeUser id:"+targetUserId']},
+      {'concept.doFindChild':{value:['targetUserId'], onTrue:[
+        {'world.doLog':'Found Child to REMOVE!!!!'},
+        {'world.doLog':['current']},
+        {'current.doRemove':{}}
+      ]}}
+    ]
+  },
+  'addController=>AddControllerAction':{
+    onAction:[
+//      {'world.doLog':'Adding Controller'},
+//      {'world.doLog':['#"addController name: "+name']},
+      {'name.isValue':{
+        'generic-mouse-other':[{'self.browserSelfHead.doBuild':{id:'head'}}],
+        'generic-keyboard':[{'self.keyboard.doBuild':{id:'keyboard'}}]
+      }}
+    ]
+  },
+  'addUserRequest=>Action':{
+    'toId=>String':{},
+    'fromId=>String':{},
+    'position=>Vector':{},
+    'rotation=>Vector':{},
+    'color=>Integer':{},
+    'nickname=>String':{},
+    onAction:[
+      {'world.doLog':['#"addUserRequest fromId:"+fromId']},
+//      {'world.doLog':['identity.head.object.rotation']},
+//      {'world.doLog':['identity.object.position']},
+      {'other.doBuild':{id:['fromId'], object:{position:['position'], rotation:['rotation']}, color:['color'], nickname:['nickname']}},
+      {'addUserResponse.doTell':{'toId':['fromId'], 'fromId':['identity.id'], position:['identity.object.position'], rotation:['identity.object.rotation'], color:['identity.color'], nickname:['identity.nickname']}},
+      {'env.doIterateControllers':{onNext:[
+//        {'world.doLog':'Controller'},
+//        {'world.doLog':['current']},
+        {'addControllerRequest.doTell':{'toId':['fromId'], 'fromId':['identity.id'], 'name':['current.attach']}}
+      ]}}
+    ]
+  },
+  'addUserResponse=>Action':{
+    'toId=>String':{},
+    'fromId=>String':{},
+    'position=>Vector':{},
+    'rotation=>Vector':{},
+    'color=>Integer':{},
+    'nickname=>String':{},
+    onAction:[
+      {'world.doLog':['#"addUserResponse fromId:"+fromId']},
+      {'world.doLog':['color']},
+      {'other.doBuild':{id:['fromId'], object:{position:['position'], rotation:['rotation']}, color:['color'], nickname:['nickname']}},
+    ]
+  },
+  'addControllerRequest=>Action':{
+    'toId=>String':{},
+    'fromId=>String':{},
+    'name=>String':{},
+    onAction:[
+//      {'world.doLog':'addControllerRequest'},
+//      {'world.doLog':['name.value']},
+      {'concept.doFindChild':{value:['fromId'], onTrue:[
+  //      {'world.doLog':'Found Child to addController!!!!'},
+  //      {'world.doLog':['current']},
+        {'other.doSetCurrent':['current']},
+      ]}},
+      {'name.value.isValue':{
+        'generic-mouse-other':[
+//          {'world.doLog':'Building generic-mouse-other'},
+//          {'world.doLog':['other.current']},
+          {'other.generic-mouse-other.doBuild':{id:'head', userId:['fromId']}}
+        ],
+        'generic-keyboard':[
+          {'other.generic-keyboard.doBuild':{id:'keyboard', userId:['fromId']}}
+        ]
+      ]}}
+    ]
+  },
+  'avatarTable=>BasicTable':{
+    'record=>Record':{
+      'avatarType=>StringField':{default:'default'},
+      'color=>StringField':{default:0xff0000},
+      'nickname=>StringField':{default:'EMPTY'},
+    },
+    source:['world._global._database']
+  },
+  'databaseStatusChangeListener=>Action':{
+    handler:['world._global._database.statusChangeHandler'],
+    onAction:[
+      {'current.status.value.isValue':{
+        'Success':[
+          {'avatarTable.doQuery':{'record.avatarType.lock':'default'}},
+          {'avatarTable.doUpdateRecord':{}},
+          {'identity.color':['avatarTable.record.color']},
+          {'identity.nickname':['avatarTable.record.nickname']},
+          {'changeColorHandler.doBroadcast':{color:['avatarTable.record.color']}},
+          {'changeNicknameHandler.doBroadcast':{nickname:['avatarTable.record.nickname']}},
+        ]
+      }}
+    ]
+  },
+  'KelsonSansR=>Font':{url:'assets/concepts/defaultFonts/Kelson_Sans_Regular.json'},
+  'labelHeaderMtl=>StandardMaterial':{transparent:true, color:26240, opacity:0.85, envMap:'concept.hdrCubeMapTex'},
+  'labelHeaderFontMtl=>StandardMaterial':{transparent:true, color:16777215, envMap:'concept.hdrCubeMapTex'},
+  'avatarTex=>BasicTexture':{url:'assets/concepts/avatars/avatar_001.png'},
+  'headObj=>Object' : {url:'assets/concepts/avatars/Head_002.obj'},
+  'bodyObj=>Object' : {url:'assets/concepts/avatars/Body_001.obj'},
+  'handObj=>Object' : {url:'assets/concepts/avatars/Paper_005.obj'},
+  'hdrCubeMapTex=>HDRCubeMapTexture' : {url:'assets/HDRIs/HDRempty.bin'},
+  'selfBuildEvent=>Handler':{},
+  'changeColorHandler=>Handler':{
+    'note=>Note':{text:'Change Color of registered meshes.  Change Global Color Value'},
+    'color=>Integer':{value:0},
+    onBroadcast:[
+      {'avatarTable.doQuery':{'record.color':['color']}},
+      {'avatarTable.doUpdateRecord':{}},
+      {'world._global._database.doSave':{}},
+      {'avatarChangeRequest.doTellAll':{'fromId':['identity.id'], 'color':['avatarTable.record.color'], 'nickname':['avatarTable.record.nickname']}}
+    ]
+  },
+  'changeNicknameHandler=>Handler':{
+    'nickname=>String':{},
+    onBroadcast:[
+      {'avatarTable.doQuery':{'record.nickname':['nickname']}},
+      {'avatarTable.doUpdateRecord':{}},
+      {'world._global._database.doSave':{}},
+      {'avatarChangeRequest.doTellAll':{'fromId':['identity.id'], 'color':['avatarTable.record.color'], 'nickname':['avatarTable.record.nickname']}}
+    ]
+  },
+  'avatarChangeRequest=>Action':{
+    'fromId=>String':{},
+    'color=>Integer':{},
+    'nickname=>String':{},
+    onAction:[
+      {'world.doLog':'avatarChangeRequest'},
+      {'world.doLog':['fromId']},
+      {'world.doLog':['color']},
+      {'world.doLog':['nickname']},
+      {'world.doLog':['concept']},
+      {'concept.doFindChild':{value:['fromId'], onTrue:[
+        {'world.doLog':'Found Child!!!!'},
+        {'world.doLog':['current']},
+        {'current.color':['color']},
+        {'current.nickname':['nickname']},
+        {'current.avatarChangeHandler.doBroadcast':{}}
+      ]}}
+    ]
+  },
+  'self=>Handler':{
+    'design=>Self':{'color=>Integer':{value:0xdddddd}, 'nickname=>String':{value:'WTF'}},
+    onBuild:[
+      {'current.object.position':['concept.startPosition']},
+      {'current.object.rotation':['concept.startRotation']},
+    ],
+    onUpdate:[
+    ],
+    'browserARSelfHead=>Handler':{
+      'design=>Group':{object:{position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}}},
+      onBuild:[
+        {'env.camera=>PerspectiveCamera':{}},
+        {'concept.selfBuildEvent.doBroadcast':{}},
+      ],
+    },
+    'browserSelfHead=>Handler':{
+      'design=>Controller3D':{attach:'generic-mouse-other', object:{position:{x:0, y:1.6, z:0}}},
+      'angle=>AngleUtil':{},
+      onBuild:[
+        {'current.parent.camera=>PerspectiveCamera':{object:{position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}}}},
+        {'current.parent.camera.object.position.y':1.6},
+        {'parent.browserSelfBody.doBuild':{id:'body'}}
+      ],
+      onUpdate:[
+        {'current.parent.body.object.rotation':{x:0, y:['angle.y'], z:0}},
+        {'current.parent.body.object.position':{x:['current.object.position.x'], y:['current.object.position.y-.2'], z:['current.object.position.z']}},
+      ]
+    },
+    'keyboard=>Handler':{
+      'design=>Controller3D':{attach:'generic-keyboard', object:{visible:false}},
+    },
+    'browserSelfBody=>Handler':{
+      'design=>Group':{object:{renderOrder:1000, position:{x:0, y:1.4, z:0}},
+        'torso=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, scalar:.3}, geometry:'concept.bodyObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1, emissive:['current.color'],
+            blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'},
+          'colorChangeListener=>Action':{
+            handler:['concept.changeColorHandler'],
+            onAction:[
+              {'parent.material':{color:['current.color'], emissive:['current.color']}}
+            ]
+          }
+        },
+        'label=>TextCell':{object:{renderOrder:1000, position:{x:0, y:.4, z:0}, rotation:{y:3.1415}, scalar:.5}, align:'center', width:1, lineSpace:0.5, pad:{top:0.05, left:0.05}, fontSize:0.1, text:['current.nickname'],
+          backMtl:'concept.labelHeaderMtl', fontMtl:'concept.labelHeaderFontMtl', font:'concept.KelsonSansR'}},
+      onBuild:[
+        {'concept.selfBuildEvent.doBroadcast':{}},
+      ],
+    },
+    'oculus-touch-left=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, scale:{x:-1}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'colorChangeListener=>Action':{
+          handler:['concept.changeColorHandler'],
+          onAction:[
+            {'parent.mesh.material':{color:['current.color'], emissive:['current.color']}}
+          ]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-touch-right=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'colorChangeListener=>Action':{
+          handler:['concept.changeColorHandler'],
+          onAction:[
+            {'parent.mesh.material':{color:['current.color'], emissive:['current.color']}}
+          ]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-hand-left=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, rotation:{z:Math.PI/2}, scale:{x:-1}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'colorChangeListener=>Action':{
+          handler:['concept.changeColorHandler'],
+          onAction:[
+            {'parent.mesh.material':{color:['current.color'], emissive:['current.color']}}
+          ]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-hand-right=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, rotation:{z:Math.PI/2}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'colorChangeListener=>Action':{
+          handler:['concept.changeColorHandler'],
+          onAction:[
+            {'parent.mesh.material':{color:['current.color'], emissive:['current.color']}}
+          ]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+  },
+  'other=>Handler':{
+    'design=>User':{'color=>Integer':{value:0xff0000}, 'nickname=>String':{value:'unknown'},
+      'avatarChangeHandler=>Handler':{}
+    },
+    'generic-mouse-other=>Handler':{
+      'design=>Controller3DMimic':{id:'head', object:{renderOrder:1000, position:{x:0, y:1.6, z:0}, scalar:.3}, controllerId:'generic-mouse-other', userId:'unknown',
+        'mesh=>Mesh':{geometry:'concept.headObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1, emissive:['current.color'],
+            blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'},
+          'avatarChangeListener=>Action':{
+            handler:['current.avatarChangeHandler'],
+            onAction:[{'parent.material':{color:['current.color'], emissive:['current.color']}}]
+          }
+        }
+      },
+      'angle=>AngleUtil':{},
+      onBuild:[
+        {'parent.browserBody.doBuild':{id:'body'}}
+      ],
+      onUpdate:[
+        {'doSetCurrent':['current']},
+        {'current.parent.body.object.rotation':{x:0, y:['angle.y'], z:0}},
+        {'current.parent.body.object.position':{x:['current.object.position.x'], y:['current.object.position.y-.2'], z:['current.object.position.z']}},
+      ]
+    },
+    'generic-keyboard=>Handler':{
+      'design=>Controller3DMimic':{id:'keyboard', object:{visible:false}, controllerId:'generic-keyboard', userId:'unknown'},
+    },
+    'browserBody=>Handler':{
+      'design=>Group':{object:{renderOrder:1000, position:{x:0, y:1.4, z:0}},
+        'torso=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, scalar:.3}, geometry:'concept.bodyObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1, emissive:['current.color'],
+            blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'},
+        },
+        'label=>TextCell':{object:{renderOrder:1000, position:{x:0, y:.4, z:0}, rotation:{y:3.1415}, scalar:.5}, align:'center', width:1, lineSpace:0.5, pad:{top:0.05, left:0.05}, fontSize:0.1, text:['current.nickname'],
+          backMtl:'concept.labelHeaderMtl', fontMtl:'concept.labelHeaderFontMtl', font:'concept.KelsonSansR'},
+        'avatarChangeListener=>Action':{
+          handler:['current.avatarChangeHandler'],
+          onAction:[{'torso.material':{color:['current.color'], emissive:['current.color']}, 'label.text':['current.nickname']}]
+        }
+      },
+    },
+    'oculus-touch-left=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, scale:{x:-1}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'avatarChangeListener=>Action':{
+          handler:['current.avatarChangeHandler'],
+          onAction:[{'parent.material':{color:['current.color'], emissive:['current.color']}}]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-touch-right=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'avatarChangeListener=>Action':{
+          handler:['current.avatarChangeHandler'],
+          onAction:[{'parent.material':{color:['current.color'], emissive:['current.color']}}]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-hand-left=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, rotation:{z:Math.PI/2}, scale:{x:-1}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'avatarChangeListener=>Action':{
+          handler:['current.avatarChangeHandler'],
+          onAction:[{'parent.material':{color:['current.color'], emissive:['current.color']}}]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+    'oculus-hand-right=>Handler':{
+      'design=>Controller3D':{
+        'distance=>Float':{value:0},
+        'mesh=>Mesh':{object:{renderOrder:1000, position:{x:0, y:0, z:0}, rotation:{z:Math.PI/2}}, geometry:'concept.handObj',
+          'material=>StandardMaterial':{map:'concept.avatarTex', color:['current.color'], roughness:0.3, metalness:0.5, emissiveIntensity:1,
+            emissive:['current.color'], blending:1, opacity:.8, transparent:true, envMap:'concept.hdrCubeMapTex'}},
+        'line=>LineBasicMesh':{color:0xd9e1e2, length:5},
+        'avatarChangeListener=>Action':{
+          handler:['current.avatarChangeHandler'],
+          onAction:[{'parent.material':{color:['current.color'], emissive:['current.color']}}]
+        }
+      },
+      onUpdate:[
+        {'current.line.length':['current.distance']}
+      ]
+    },
+  },
+  'controllerListener=>ControllerAction':{
+    onAction:[
+      {doIf:{value:'axisX > 3', onTrue:[
+        {'avatar.object.rotation.y':['avatar.head.object.rotation.y - axisX*.03']}
+      ]}},
+      {doIf:{value:'axisX < -3', onTrue:[
+        {'avatar.object.rotation.y':['avatar.head.object.rotation.y - axisX*.03']}
+      ]}},
+      {doIf:{value:'axisY > .1', onTrue:[
+        {'avatar.object.position':{x:'avatar.object.position.x - avatar.head.object.direction.x * .02', z:'avatar.object.position.z - avatar.head.object.direction.z * .02'}},
+      ]}},
+      {doIf:{value:'axisY < -.1', onTrue:[
+        {'avatar.object.position':{x:'avatar.object.position.x + avatar.head.object.direction.x * .02', z:'avatar.object.position.z + avatar.head.object.direction.z * .02'}},
+      ]}},
+      {'buttonAState.isValue':{
+        1:[
+          {'world._global._chat.doTalk':true}
+        ],
+        2:[
+          {'world._global._chat.doTalk':false}
+        ]
+      }}
+    ]
+  },
+  'keyboardListener=>KeyboardListener':{access:'public',
+    onAction:[
+      {doIf:{value:'env.defaults.masterKeyboard.value == #default',
+        onTrue:[
+          {doIf:{value:'mode == #pressed && key == #c',
+            onTrue:[{'world._global._chat.doTalk':true}]
+          }},
+          {doIf:{value:'mode == #up && key == #c',
+            onTrue:[{'world._global._chat.doTalk':false}],
+          }},
+          {doIf:{value:'mode == #pressed && key != #c',
+            onTrue:[
+              {'key.isValue':{
+                'w':{'avatar.object.position':
+                  {x:'avatar.object.position.x + avatar.body.object.direction.x * .1', z:'avatar.object.position.z + avatar.body.object.direction.z * .1'}},
+                's':{'avatar.object.position':
+                  {x:'avatar.object.position.x - avatar.body.object.direction.x * .1', z:'avatar.object.position.z - avatar.body.object.direction.z * .1'}},
+                'a':{'avatar.object.position':
+                  {x:'avatar.object.position.x + avatar.body.object.direction.z * .1', z:'avatar.object.position.z + avatar.body.object.direction.x * -.1'}},
+                'd':{'avatar.object.position':
+                  {x:'avatar.object.position.x - avatar.body.object.direction.z * .1', z:'avatar.object.position.z - avatar.body.object.direction.x * -.1'}},
+                'q':{'avatar.object.position.y':'avatar.object.position.y + .1'},
+                'e':{'avatar.object.position.y':'avatar.object.position.y - .1'},
+                'A':{'avatar.object.rotation.y':'avatar.object.rotation.y + .031415'},
+                'D':{'avatar.object.rotation.y':'avatar.object.rotation.y - .031415'}
+              }}
+            ],
+          }},
+        ]
+      }},
+    ]
+  },
+},

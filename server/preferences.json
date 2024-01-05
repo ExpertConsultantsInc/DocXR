@@ -1,0 +1,24 @@
+{
+"colors":[10027008, 5019904, 39065, 4980889],
+"defaultPort":8443,
+"rootDir":"../client",
+"pemKey": "pems/serverCertSigned.pem",
+"pemCert": "pems/serverCertSigned.pem",
+"pemCA": "pems/braincaveCA.pem",
+"useMinify":false,
+"useCompressed":false,
+"saveWorldInstances":false,
+"superUserMode":false,
+"compressibleContentTypes":{
+  	".css": "text/css; charset=UTF-8",
+  	".htm": "text/html; charset=UTF-8",
+  	".html": "text/html; charset=UTF-8",
+  	".js": "application/javascript; charset=UTF-8",
+  	".json": "application/json; charset=UTF-8",
+  	".map": "application/javascript; charset=UTF-8",
+  	".obj": "application/x-tgif",
+  	".ktx": "image/ktx",
+  	".glb": "model/gltf-binary",
+  	".hdr": "application/octet-stream"
+  }
+}

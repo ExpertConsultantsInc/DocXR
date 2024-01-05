@@ -1,0 +1,11 @@
+{
+  "name": "DocXR",
+  "version": "1.0.0",
+  "description": "DocXR is a web framework with a robust scripting language for building mixed reality experiences.",
+  "author": "Braincave",
+  "license": "ISC",
+  "dependencies": {
+    "three":"0.129.0",
+    "vimeo":"2.1.1"
+  }
+}

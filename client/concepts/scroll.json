@@ -1,0 +1,146 @@
+{
+	'iconScrollUpRowTex=>BasicTexture':{url:'assets/concepts/scroll/icon_scrollUpRow.png'},
+	'iconScrollDownRowTex=>BasicTexture':{url:'assets/concepts/scroll/icon_scrollDownRow.png'},
+	'menuScroll=>Audio3D':{url:'assets/concepts/scroll/menu_toggle_clicks.mp3'},
+	'fieldCellsOpacity=>Float':{value:0.8},
+	'drawScrollButtons=>Action':{
+		onAction:[
+			{current:{
+				'scrollButtons=>Group':{order:1, object:{visible:false},
+					'layoutUtil=>LayoutUtil':{},
+					'rowPadMesh1=>Mesh':{order:2, object:{renderOrder:1000}, 'geometry=>BoxGeometry':{x:0.1, y:0.1, z:0.01}, 'material=>BasicMaterial':{transparent:true, opacity:0, color:0xCCCCCC}},
+					'upButton=>Group':{order:3, handler:'concept.emptyHandler',
+						'buttonMesh=>Mesh':{object:{renderOrder:1000}, 'geometry=>ExtrudeGeometry':{'shape=>RectangleShape':{width:2, height:0.3, radius:0.1}, depth:0.01}, 'material=>BasicMaterial':{transparent:true, opacity:0.5, color:0x000000}},
+						'iconMesh=>ImageMesh':{object:{renderOrder:1001, position:{y:0.01, z:0.02}, rotation:{x:0, y:3.14159, z:0}, scalar:1.8}, map:'concept.iconScrollUpRowTex', transparent:true, opacity:0.5},
+					},
+					'rowPadMesh2=>Mesh':{order:4, object:{renderOrder:1000}, 'geometry=>BoxGeometry':{x:0.1, y:0.05, z:0.01}, 'material=>BasicMaterial':{transparent:true, opacity:0, color:0xCCCCCC}},
+					'downButton=>Group':{order:5, handler:'concept.scrollHandler',
+						'buttonMesh=>Mesh':{object:{renderOrder:1000}, 'geometry=>ExtrudeGeometry':{'shape=>RectangleShape':{width:2, height:0.3, radius:0.1}, depth:0.01}, 'material=>BasicMaterial':{transparent:true, opacity:1, color:0x000000}},
+						'iconMesh=>ImageMesh':{object:{renderOrder:1001, position:{z:0.02}, rotation:{x:0, y:3.14159, z:0}, scalar:1.8}, map:'concept.iconScrollDownRowTex', transparent:true, opacity:1},
+					},
+				},
+			}},
+			{'current.scrollButtons.layoutUtil.doVertical':{}},
+		]
+	},
+	'emptyHandler=>Handler':{},
+	'drawEffect=>Effect':{},
+	'scrollHandler=>Handler':{
+		'intersect=>IntersectAction':{
+			onFocused:[
+				{'drawEffect.doWaitSync':{}},
+				{'current.object.scalar.doAnimation':{from:1, to:1.2, fromTime:0, toTime:100}},
+			],
+			onUnfocused:[
+				{'drawEffect.doWaitSync':{}},
+				{'current.object.scalar.doAnimation':{from:1.2, to:1, fromTime:0, toTime:100}},
+			],
+			onSelected:[
+				{doIf:{value:'current.id == #upButton',
+					onTrue:[
+						{doIf:{value:'current.parent.parent.view.recordOffset > 0',
+							onTrue:[
+								{'drawEffect.doWaitSync':{}},
+								{'current.parent.parent.view.fieldCells.doLoop':
+									{doIf:{value:'current.rowIndex > 0', onTrue:[
+										{'current.object.opacity':0},
+									]}} },
+								{'doWait':50},
+								{'concept.menuScroll.doPlayAt':['current']},
+								{'current.parent.parent.view.fieldCells.doLoop':
+									{doIf:{value:'current.rowIndex == 0', onTrue:[
+										{'drawEffect.doAnimate':{from:['current.object.position.y'], to:['current.object.position.y-current.rowHeight*(current.parent.parent.view.rowMax-1)'], fromTime:50, toTime:300,
+					            onTick:[
+					              {'current.object.position.y':'now'},
+					            ]
+					          }},
+									]}} },
+								{'doWait':350},
+								{'current.parent.parent.view.recordOffset':'current.parent.parent.view.recordOffset - (current.parent.parent.view.rowMax - 1)'},
+								{'current.parent.parent.view.doUpdateView':true},
+								{'current.parent.parent.view.fieldCells.doLoop':[
+										{'current.cell.object.visible':true},
+										{'drawEffect.doAnimate':{from:0, to:['fieldCellsOpacity'], fromTime:'50 * current.rowIndex + 50', toTime:'50 * current.rowIndex + 100',
+					            onTick:[
+					              {'current.object.opacity':'now'},
+					            ]
+					          }},
+									}},
+								]},
+								{'current.parent.parent.doFindChild':{value:'updateView',
+									onTrue:[
+										{'current.do':{}}
+								]}},
+
+								{doIf:{value:'current.parent.parent.view.recordOffset < current.parent.parent.view.recordCount - current.parent.parent.view.rowCount',
+									onTrue:{'current.parent.downButton':{'handler':'concept.scrollHandler', 'buttonMesh.material.opacity':1, 'iconMesh.opacity':1} },
+									onFalse:[
+									{'current.parent.downButton':{'handler':'concept.emptyHandler', 'buttonMesh.material.opacity':0.5, 'iconMesh.opacity':0.5}},
+									],
+								}},
+								{'doWait':300},
+								{doIf:{value:'current.parent.parent.view.recordOffset > 0',
+									onTrue:[
+										{'current':{'handler':'concept.scrollHandler', 'buttonMesh.material.opacity':1, 'iconMesh.opacity':1} },
+									],
+									onFalse:[
+										{'current':{'handler':'concept.emptyHandler', 'buttonMesh.material.opacity':0.5, 'iconMesh.opacity':0.5} },
+									],
+								}},
+							]}},
+						],
+				}},
+				{doIf:{value:'current.id == #downButton',
+					onTrue:[
+						{doIf:{value:'current.parent.parent.view.recordOffset < current.parent.parent.view.recordCount - current.parent.parent.view.rowCount',
+							onTrue:[
+								{'drawEffect.doWaitSync':{}},
+								{'current.parent.parent.view.fieldCells.doLoop':
+									{doIf:{value:'current.rowIndex < current.parent.parent.view.rowMax - 1', onTrue:[
+											{'current.object.opacity':0},
+									]}} },
+									{'doWait':50},
+									{'concept.menuScroll.doPlayAt':['current']},
+									{'current.parent.parent.view.fieldCells.doLoop':
+										{'drawEffect.doAnimate':{from:['current.object.position.y'], to:['current.object.position.y+current.rowHeight*(current.parent.parent.view.rowMax-1)'], fromTime:50, toTime:300,
+					            onTick:[
+					              {'current.object.position.y':'now'},
+					            ]
+					          }},
+									},
+									{'current.parent.parent.view.recordOffset':'current.parent.parent.view.recordOffset + current.parent.parent.view.rowMax - 1'},
+									{'doWait':350},
+									{'current.parent.parent.view.doUpdateView':true},
+									{'current.parent.parent.view.fieldCells.doLoop':[
+											{'current.cell.object.visible':true},
+											{'drawEffect.doAnimate':{from:0, to:['fieldCellsOpacity'], fromTime:'50 * current.rowIndex + 50', toTime:'50 * current.rowIndex + 100',
+						            onTick:[
+						              {'current.object.opacity':'now'},
+						            ]
+						          }},
+										}},
+									]},
+									{'current.parent.parent.doFindChild':{value:'updateView',
+										onTrue:[
+											{'current.do':{}}
+									]}},
+
+									{doIf:{value:'current.parent.parent.view.recordOffset < current.parent.parent.view.recordCount - current.parent.parent.view.rowCount',
+										onTrue:{'current':{'handler':'concept.scrollHandler', 'buttonMesh.material.opacity':1, 'iconMesh.opacity':1} },
+										onFalse:{'current':{'handler':'concept.emptyHandler', 'buttonMesh.material.opacity':0.5, 'iconMesh.opacity':0.5} }, }},
+
+									{doIf:{value:'current.parent.parent.view.recordOffset > 0',
+										onTrue:[
+											{'current.parent.upButton':{'handler':'concept.scrollHandler', 'buttonMesh.material.opacity':1, 'iconMesh.opacity':1} },
+										],
+										onFalse:[
+											{'current.parent.upButton':{'handler':'concept.emptyHandler', 'buttonMesh.material.opacity':0.5, 'iconMesh.opacity':0.5} },
+										],
+									}},
+							]}},
+						],
+				}},
+			],
+		}
+	},
+},

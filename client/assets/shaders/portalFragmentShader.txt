@@ -1,0 +1,48 @@
+varying vec2 vUv;
+
+//load percent
+uniform float percent;
+
+//scale of logo, can be any positive float. 1.0 is 100% scale, 0.5 is 50% scale, etc.
+//negative values work, but you probably don't want them.
+//values with an extremely small magnitude (<0.09) produce visible artifacts.
+//I think this has to do with floating point rounding and UV wrapping. Not sure if it can be fixed.
+uniform float logoScale;
+
+//background image for portal, should be a view of the portal's destination
+uniform sampler2D background;
+
+//logo or symbol representing the portal's destination
+uniform sampler2D logo;
+
+//note: right now, this isn't behaving appropriately, re: color space.
+//It would be expensive to color-correct it in the shader, so if you want to
+//    match an in-scene color, pass this shader an identical color but DO NOT
+//    convert it from SRGBToLinear().
+uniform vec3 color;
+
+void main() {
+  //Shift logo up and to the right to put it back in the center, depending on the scale.
+  float logoOffset = (1.0 - (1.0 / logoScale)) / 2.0;
+
+  //Distance from the center of UV space. Might be able to optimize this line, but I bet the compiler is cleaning it up for us.
+  float dist = sqrt(((vUv.x - 0.5) * 2.0) * ((vUv.x - 0.5) * 2.0) + ((vUv.y - 0.5) * 2.0) * ((vUv.y - 0.5) * 2.0));
+
+  //Sets a threshold on dist, giving us a hard ring instead of a gradient.
+  float stepDist = smoothstep(0.895, 0.905, dist);
+
+  //Rotation angle of a point around the origin in polar coordinates, except also I flipped it around to make the loading go round the right way.
+  float theta = atan((vUv.x - 0.5) * 2.0, (vUv.y - 0.5) * -2.0) / 6.283 + 0.5;
+
+  //Sets a threshold on theta so that an arbitrary radial slice of UV space is white, then applies that as a mask to the ring we got from stepDist.
+  float isRing = step(theta, percent * .01) * stepDist;
+
+  //Combines the logo and ring into a black and white mask
+  vec4 addMask = (texture2D(logo, clamp((vUv / logoScale) + logoOffset, 0.0, 1.0)) + vec4(isRing, isRing, isRing, 1.0));
+
+  //Lerps between the background texture (slightly darkened) and the given color based on the mask
+  vec4 texColor = mix(texture2D(background, vUv) * 0.7, vec4(color, 1.0), addMask);
+
+  //output texColor
+  gl_FragColor = texColor;
+}
